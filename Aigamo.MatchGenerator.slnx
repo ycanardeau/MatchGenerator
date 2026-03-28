@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Aigamo.MatchGenerator.ConsoleApp/Aigamo.MatchGenerator.ConsoleApp.csproj" Id="b3f61da6-4537-4428-b99c-61bce11a97fd" />
   <Project Path="Aigamo.MatchGenerator/Aigamo.MatchGenerator.csproj" Id="f014e2b6-0d83-440a-879d-d524f7668f8b" />
 </Solution>
