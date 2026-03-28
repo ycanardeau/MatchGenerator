@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aigamo.MatchGenerator\Aigamo.MatchGenerator.csproj" />
+    <ProjectReference Include="..\Aigamo.MatchGenerator\Aigamo.MatchGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
