@@ -7,6 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+    <PackageProjectUrl>https://github.com/ycanardeau/MatchGenerator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ycanardeau/MatchGenerator</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
