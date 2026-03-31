@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using Aigamo.MatchGenerator.Extensions;
 using Microsoft.CodeAnalysis;
@@ -35,13 +36,6 @@ static file class AccessibilityMatchExtensions
 [Generator]
 internal class SourceGenerator : IIncrementalGenerator
 {
-	private static INamedTypeSymbol? GetEnumSymbol(GeneratorSyntaxContext context)
-	{
-		var enumSyntax = (EnumDeclarationSyntax)context.Node;
-		var symbol = context.SemanticModel.GetDeclaredSymbol(enumSyntax);
-		return symbol as INamedTypeSymbol;
-	}
-
 	private static Accessibility Min(Accessibility left, Accessibility right)
 	{
 		return (Accessibility)Math.Min((int)left, (int)right);
@@ -74,11 +68,12 @@ internal class SourceGenerator : IIncrementalGenerator
 		return ToCode(accessibility);
 	}
 
-	private static void Generate(SourceProductionContext context, INamedTypeSymbol enumSymbol)
+	private static void GenerateForEnum(INamedTypeSymbol enumType, SourceProductionContext context)
 	{
-		var members = enumSymbol.GetMembers()
+		var members = enumType.GetMembers()
 			.OfType<IFieldSymbol>()
 			.Where(x => x.ConstantValue is not null)
+			.OrderBy(x => x.Name)
 			.ToList();
 
 		if (members is { Count: 0 })
@@ -86,12 +81,12 @@ internal class SourceGenerator : IIncrementalGenerator
 			return;
 		}
 
-		var enumName = enumSymbol.Name;
-		var namespaceName = enumSymbol.ContainingNamespace.IsGlobalNamespace
+		var enumName = enumType.Name;
+		var namespaceName = enumType.ContainingNamespace.IsGlobalNamespace
 			? null
-			: enumSymbol.ContainingNamespace.ToDisplayString();
+			: enumType.ContainingNamespace.ToDisplayString();
 
-		var accessibility = GetEffectiveAccessibility(enumSymbol);
+		var accessibility = GetEffectiveAccessibility(enumType);
 
 		var sb = new StringBuilder();
 
@@ -103,12 +98,12 @@ internal class SourceGenerator : IIncrementalGenerator
 			sb.AppendLineLF();
 		}
 
-		sb.AppendLineLF($"{accessibility} static class {enumName}{Constants.ExtensionClassSuffix}");
+		sb.AppendLineLF($"{accessibility} static class {enumName}{Constants.MatchExtensionClassSuffix}");
 		sb.AppendLineLF("{");
 		sb.AppendLineLF("\tpublic static U Match<U>(");
 		sb.AppendLineLF($"\t\tthis {enumName} value,");
 
-		sb.AppendLineLF(string.Join(",\n", members.Select(x => $"\t\tFunc<U> on{x.Name}")));
+		sb.AppendLineLF(string.Join(",\n", members.Select(x => $"\t\tSystem.Func<U> on{x.Name}")));
 
 		sb.AppendLineLF("\t)");
 		sb.AppendLineLF("\t{");
@@ -125,21 +120,160 @@ internal class SourceGenerator : IIncrementalGenerator
 		sb.AppendLineLF("\t}");
 		sb.AppendLineLF("}");
 
-		context.AddSource($"{enumName}{Constants.ExtensionClassSuffix}.g.cs", sb.ToString());
+		context.AddSource($"{enumName}{Constants.MatchExtensionClassSuffix}.g.cs", sb.ToString());
+	}
+
+	private static bool IsDerivedFrom(INamedTypeSymbol type, INamedTypeSymbol baseType)
+	{
+		while (type.BaseType is not null)
+		{
+			if (SymbolEqualityComparer.Default.Equals(type.BaseType, baseType))
+				return true;
+
+			type = type.BaseType;
+		}
+		return false;
+	}
+
+	private static IEnumerable<INamedTypeSymbol> GetDerivedTypes(
+		INamedTypeSymbol baseType,
+		Compilation compilation
+	)
+	{
+		foreach (var tree in compilation.SyntaxTrees)
+		{
+			var model = compilation.GetSemanticModel(tree);
+
+			var types = tree.GetRoot()
+				.DescendantNodes()
+				.OfType<TypeDeclarationSyntax>();
+
+			foreach (var t in types)
+			{
+				if (model.GetDeclaredSymbol(t) is INamedTypeSymbol symbol)
+				{
+					if (IsDerivedFrom(symbol, baseType))
+						yield return symbol;
+				}
+			}
+		}
+	}
+
+	private static void GenerateMatchMethod(
+		StringBuilder sb,
+		string baseName,
+		List<INamedTypeSymbol> derived
+	)
+	{
+		sb.AppendLineLF($"\tpublic static U Match<U>(");
+		sb.AppendLineLF($"\t\tthis {baseName} value,");
+
+		sb.AppendLineLF(string.Join(",\n", derived.Select(x => $"\t\tSystem.Func<{x.Name}, U> on{x.Name}")));
+
+		sb.AppendLineLF("\t)");
+		sb.AppendLineLF("\t{");
+		sb.AppendLineLF("\t\treturn value switch");
+		sb.AppendLineLF("\t\t{");
+
+		foreach (var d in derived)
+		{
+			sb.AppendLineLF($"\t\t\t{d.Name} x => {ToParam(d.Name)}(x),");
+		}
+
+		sb.AppendLineLF("\t\t\t_ => throw new System.Diagnostics.UnreachableException(),");
+		sb.AppendLineLF("\t\t};");
+		sb.AppendLineLF("\t}");
+	}
+
+	private static string ToParam(string typeName)
+	{
+		return $"on{typeName}";
+	}
+
+	private static void GenerateForUnion(
+		INamedTypeSymbol baseType,
+		Compilation compilation,
+		SourceProductionContext context
+	)
+	{
+		if (!baseType.IsAbstract)
+			return;
+
+		var derived = GetDerivedTypes(baseType, compilation)
+			.Where(x => !x.IsAbstract)
+			.OrderBy(x => x.Name)
+			.ToList();
+
+		if (derived.Count == 0)
+			return;
+
+		var baseName = baseType.Name;
+		var namespaceName = baseType.ContainingNamespace.IsGlobalNamespace
+			? null
+			: baseType.ContainingNamespace.ToDisplayString();
+
+		var sb = new StringBuilder();
+
+		sb.AppendLineLF("// <auto-generated />");
+
+		if (namespaceName is not null)
+		{
+			sb.AppendLineLF($"namespace {namespaceName};");
+			sb.AppendLineLF();
+		}
+
+		sb.AppendLineLF($"{GetEffectiveAccessibility(baseType)} static class {baseName}{Constants.MatchExtensionClassSuffix}");
+		sb.AppendLineLF("{");
+
+		GenerateMatchMethod(sb, baseName, derived);
+
+		sb.AppendLineLF("}");
+
+		context.AddSource($"{baseName}{Constants.MatchExtensionClassSuffix}.g.cs", sb.ToString());
+	}
+
+	private static void Execute(
+		Compilation compilation,
+		ImmutableArray<INamedTypeSymbol> targets,
+		SourceProductionContext context
+	)
+	{
+		foreach (INamedTypeSymbol type in targets.Distinct(SymbolEqualityComparer.Default))
+		{
+			if (type.TypeKind == TypeKind.Enum)
+			{
+				GenerateForEnum(type, context);
+			}
+			else
+			{
+				GenerateForUnion(type, compilation, context);
+			}
+		}
 	}
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		var enums = context.SyntaxProvider
-			.CreateSyntaxProvider(
-				predicate: static (node, _) => node is EnumDeclarationSyntax,
-				transform: static (ctx, _) => GetEnumSymbol(ctx)
-			)
-			.WhereNotNull();
-
-		context.RegisterSourceOutput(enums, static (spc, enumSymbol) =>
+		context.RegisterPostInitializationOutput(ctx =>
 		{
-			Generate(spc, enumSymbol);
+			ctx.AddSource("GenerateMatchAttribute.g.cs", """
+				using System;
+
+				namespace Aigamo.MatchGenerator;
+
+				[AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum)]
+				internal sealed class GenerateMatchAttribute : Attribute;
+				""");
 		});
+
+		var targets = context.SyntaxProvider
+			.ForAttributeWithMetadataName(
+				"Aigamo.MatchGenerator.GenerateMatchAttribute",
+				static (node, _) => node is TypeDeclarationSyntax or EnumDeclarationSyntax,
+				static (ctx, _) => (INamedTypeSymbol)ctx.TargetSymbol
+			);
+
+		var compilationAndTargets = context.CompilationProvider.Combine(targets.Collect());
+
+		context.RegisterSourceOutput(compilationAndTargets, static (spc, source) => Execute(source.Left, source.Right, spc));
 	}
 }

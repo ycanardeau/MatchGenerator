@@ -2,5 +2,5 @@ namespace Aigamo.MatchGenerator;
 
 internal static class Constants
 {
-	public const string ExtensionClassSuffix = "MatchExtensions";
+	public const string MatchExtensionClassSuffix = "MatchExtensions";
 }

@@ -30,7 +30,7 @@ public class EnumMatchGeneratorTests
 	private static string RunGenerator(string source)
 	{
 		var result = Run(source);
-		return result.GeneratedTrees[0].GetText().ToString();
+		return result.GeneratedTrees[1].GetText().ToString();
 	}
 
 	private static List<string> RunGeneratorAll(string source)
@@ -44,8 +44,11 @@ public class EnumMatchGeneratorTests
 	{
 		// Arrange
 		var source = @"
+using Aigamo.MatchGenerator;
+
 namespace Test;
 
+[GenerateMatch]
 public enum Gender
 {
 	Male = 1,
@@ -63,14 +66,14 @@ public enum Gender
 			{
 				public static U Match<U>(
 					this Gender value,
-					Func<U> onMale,
-					Func<U> onFemale
+					System.Func<U> onFemale,
+					System.Func<U> onMale
 				)
 				{
 					return value switch
 					{
-						Gender.Male => onMale(),
 						Gender.Female => onFemale(),
+						Gender.Male => onMale(),
 						_ => throw new System.Diagnostics.UnreachableException(),
 					};
 				}
@@ -87,6 +90,9 @@ public enum Gender
 	{
 		// Arrange
 		var source = @"
+using Aigamo.MatchGenerator;
+
+[GenerateMatch]
 public enum Gender
 {
 	Male = 1,
@@ -102,14 +108,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onMale,
-				Func<U> onFemale
+				System.Func<U> onFemale,
+				System.Func<U> onMale
 			)
 			{
 				return value switch
 				{
-					Gender.Male => onMale(),
 					Gender.Female => onFemale(),
+					Gender.Male => onMale(),
 					_ => throw new System.Diagnostics.UnreachableException(),
 				};
 			}
@@ -125,14 +131,17 @@ public enum Gender
 	public void Generates_Match_For_Simple_Enum()
 	{
 		var source = """
-        namespace Test;
+		using Aigamo.MatchGenerator;
 
-        public enum Gender
-        {
-            Male = 1,
-            Female
-        }
-        """;
+		namespace Test;
+
+		[GenerateMatch]
+		public enum Gender
+		{
+			Male = 1,
+			Female
+		}
+		""";
 
 		var actual = RunGenerator(source);
 
@@ -144,14 +153,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onMale,
-				Func<U> onFemale
+				System.Func<U> onFemale,
+				System.Func<U> onMale
 			)
 			{
 				return value switch
 				{
-					Gender.Male => onMale(),
 					Gender.Female => onFemale(),
+					Gender.Male => onMale(),
 					_ => throw new System.Diagnostics.UnreachableException(),
 				};
 			}
@@ -167,14 +176,17 @@ public enum Gender
 	public void Matches_Internal_Accessibility()
 	{
 		var source = """
-        namespace Test;
+		using Aigamo.MatchGenerator;
 
-        internal enum Gender
-        {
-            Male,
-            Female
-        }
-        """;
+		namespace Test;
+
+		[GenerateMatch]
+		internal enum Gender
+		{
+			Male,
+			Female
+		}
+		""";
 
 		var actual = RunGenerator(source);
 
@@ -186,14 +198,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onMale,
-				Func<U> onFemale
+				System.Func<U> onFemale,
+				System.Func<U> onMale
 			)
 			{
 				return value switch
 				{
-					Gender.Male => onMale(),
 					Gender.Female => onFemale(),
+					Gender.Male => onMale(),
 					_ => throw new System.Diagnostics.UnreachableException(),
 				};
 			}
@@ -209,17 +221,20 @@ public enum Gender
 	public void Respects_Containing_Type_Accessibility()
 	{
 		var source = """
-        namespace Test;
+		using Aigamo.MatchGenerator;
 
-        internal class Container
-        {
-            public enum Gender
-            {
-                Male,
-                Female
-            }
-        }
-        """;
+		namespace Test;
+
+		internal class Container
+		{
+			[GenerateMatch]
+			public enum Gender
+			{
+				Male,
+				Female
+			}
+		}
+		""";
 
 		var actual = RunGenerator(source);
 
@@ -231,14 +246,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onMale,
-				Func<U> onFemale
+				System.Func<U> onFemale,
+				System.Func<U> onMale
 			)
 			{
 				return value switch
 				{
-					Gender.Male => onMale(),
 					Gender.Female => onFemale(),
+					Gender.Male => onMale(),
 					_ => throw new System.Diagnostics.UnreachableException(),
 				};
 			}
@@ -254,15 +269,214 @@ public enum Gender
 	public void Generates_For_Multiple_Enums()
 	{
 		var source = """
-        namespace Test;
+		using Aigamo.MatchGenerator;
 
-        public enum A { X, Y }
-        public enum B { P, Q }
-        """;
+		namespace Test;
+
+		[GenerateMatch]
+		public enum A { X, Y }
+		[GenerateMatch]
+		public enum B { P, Q }
+		""";
 
 		var result = RunGeneratorAll(source);
 
 		Assert.Contains(result, x => x.Contains("AMatchExtensions"));
 		Assert.Contains(result, x => x.Contains("BMatchExtensions"));
+	}
+
+	[Fact]
+	public void Generates_Match_Method_For_Record_Hierarchy()
+	{
+		var source = """
+	using Aigamo.MatchGenerator;
+
+	namespace Test;
+
+	[GenerateMatch]
+	abstract record MaritalStatus;
+
+	sealed record Single : MaritalStatus;
+	sealed record Married : MaritalStatus;
+	sealed record Divorced : MaritalStatus;
+	sealed record Widowed : MaritalStatus;
+	""";
+
+		var actual = RunGenerator(source);
+
+		var expected = """
+	// <auto-generated />
+	namespace Test;
+
+	internal static class MaritalStatusMatchExtensions
+	{
+		public static U Match<U>(
+			this MaritalStatus value,
+			System.Func<Divorced, U> onDivorced,
+			System.Func<Married, U> onMarried,
+			System.Func<Single, U> onSingle,
+			System.Func<Widowed, U> onWidowed
+		)
+		{
+			return value switch
+			{
+				Divorced x => onDivorced(x),
+				Married x => onMarried(x),
+				Single x => onSingle(x),
+				Widowed x => onWidowed(x),
+				_ => throw new System.Diagnostics.UnreachableException(),
+			};
+		}
+	}
+
+	""";
+
+		Assert.Equal(expected, actual);
+	}
+
+	[Fact]
+	public void Generates_Match_For_Record_Hierarchy_In_Global_Namespace()
+	{
+		var source = """
+	using Aigamo.MatchGenerator;
+
+	[GenerateMatch]
+	abstract record MaritalStatus;
+
+	sealed record Single : MaritalStatus;
+	sealed record Married : MaritalStatus;
+	sealed record Divorced : MaritalStatus;
+	sealed record Widowed : MaritalStatus;
+	""";
+
+		var actual = RunGenerator(source);
+
+		var expected = """
+	// <auto-generated />
+	internal static class MaritalStatusMatchExtensions
+	{
+		public static U Match<U>(
+			this MaritalStatus value,
+			System.Func<Divorced, U> onDivorced,
+			System.Func<Married, U> onMarried,
+			System.Func<Single, U> onSingle,
+			System.Func<Widowed, U> onWidowed
+		)
+		{
+			return value switch
+			{
+				Divorced x => onDivorced(x),
+				Married x => onMarried(x),
+				Single x => onSingle(x),
+				Widowed x => onWidowed(x),
+				_ => throw new System.Diagnostics.UnreachableException(),
+			};
+		}
+	}
+
+	""";
+
+		Assert.Equal(expected, actual);
+	}
+
+	[Fact]
+	public void Matches_Record_Accessibility()
+	{
+		var source = """
+	using Aigamo.MatchGenerator;
+
+	namespace Test;
+
+	[GenerateMatch]
+	internal abstract record MaritalStatus;
+
+	internal sealed record Single : MaritalStatus;
+	internal sealed record Married : MaritalStatus;
+	internal sealed record Divorced : MaritalStatus;
+	internal sealed record Widowed : MaritalStatus;
+	""";
+
+		var actual = RunGenerator(source);
+
+		var expected = """
+	// <auto-generated />
+	namespace Test;
+
+	internal static class MaritalStatusMatchExtensions
+	{
+		public static U Match<U>(
+			this MaritalStatus value,
+			System.Func<Divorced, U> onDivorced,
+			System.Func<Married, U> onMarried,
+			System.Func<Single, U> onSingle,
+			System.Func<Widowed, U> onWidowed
+		)
+		{
+			return value switch
+			{
+				Divorced x => onDivorced(x),
+				Married x => onMarried(x),
+				Single x => onSingle(x),
+				Widowed x => onWidowed(x),
+				_ => throw new System.Diagnostics.UnreachableException(),
+			};
+		}
+	}
+
+	""";
+
+		Assert.Equal(expected, actual);
+	}
+
+	[Fact]
+	public void Respects_Containing_Type_Accessibility_For_Record_Hierarchy()
+	{
+		var source = """
+	using Aigamo.MatchGenerator;
+
+	namespace Test;
+
+	internal class Container
+	{
+		[GenerateMatch]
+		public abstract record MaritalStatus;
+
+		public sealed record Single : MaritalStatus;
+		public sealed record Married : MaritalStatus;
+		public sealed record Divorced : MaritalStatus;
+		public sealed record Widowed : MaritalStatus;
+	}
+	""";
+
+		var actual = RunGenerator(source);
+
+		var expected = """
+	// <auto-generated />
+	namespace Test;
+
+	internal static class MaritalStatusMatchExtensions
+	{
+		public static U Match<U>(
+			this MaritalStatus value,
+			System.Func<Divorced, U> onDivorced,
+			System.Func<Married, U> onMarried,
+			System.Func<Single, U> onSingle,
+			System.Func<Widowed, U> onWidowed
+		)
+		{
+			return value switch
+			{
+				Divorced x => onDivorced(x),
+				Married x => onMarried(x),
+				Single x => onSingle(x),
+				Widowed x => onWidowed(x),
+				_ => throw new System.Diagnostics.UnreachableException(),
+			};
+		}
+	}
+
+	""";
+
+		Assert.Equal(expected, actual);
 	}
 }
