@@ -133,7 +133,9 @@ internal class SourceGenerator : IIncrementalGenerator
 		while (type.BaseType is not null)
 		{
 			if (SymbolEqualityComparer.Default.Equals(type.BaseType, baseType))
+			{
 				return true;
+			}
 
 			type = type.BaseType;
 		}
@@ -158,7 +160,9 @@ internal class SourceGenerator : IIncrementalGenerator
 				if (model.GetDeclaredSymbol(t) is INamedTypeSymbol symbol)
 				{
 					if (IsDerivedFrom(symbol, baseType))
+					{
 						yield return symbol;
+					}
 				}
 			}
 		}
@@ -202,7 +206,9 @@ internal class SourceGenerator : IIncrementalGenerator
 	)
 	{
 		if (!baseType.IsAbstract)
+		{
 			return;
+		}
 
 		var derived = GetDerivedTypes(baseType, compilation)
 			.Where(x => !x.IsAbstract)
@@ -210,7 +216,9 @@ internal class SourceGenerator : IIncrementalGenerator
 			.ToList();
 
 		if (derived.Count == 0)
+		{
 			return;
+		}
 
 		var baseName = baseType.Name;
 		var namespaceName = baseType.ContainingNamespace.IsGlobalNamespace
