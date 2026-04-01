@@ -65,10 +65,10 @@ var message = gender.Match(
 
 ```csharp
 var message = maritalStatus.Match(
-	onSingle: () => "single",
-	onMarried: () => "married",
-	onDivorced: () => "divorced",
-	onWidowed: () => "widowed"
+	onSingle: x => "single",
+	onMarried: x => "married",
+	onDivorced: x => "divorced",
+	onWidowed: x => "widowed"
 );
 ```
 
@@ -92,10 +92,10 @@ var message = gender switch
 ```csharp
 var message = maritalStatus switch
 {
-	Single => "single",
-	Married => "married",
-	Divorced => "divorced",
-	Widowed => "widowed",
+	Single x => "single",
+	Married x => "married",
+	Divorced x => "divorced",
+	Widowed x => "widowed",
 	_ => throw new UnreachableException(),
 };
 ```
@@ -167,18 +167,18 @@ internal static class MaritalStatusMatchExtensions
 {
 	public static U Match<U>(
 		this MaritalStatus value,
-		Func<U> onDivorced,
-		Func<U> onMarried,
-		Func<U> onSingle,
-		Func<U> onWidowed
+		Func<Divorced, U> onDivorced,
+		Func<Married, U> onMarried,
+		Func<Single, U> onSingle,
+		Func<Widowed, U> onWidowed
 	)
 	{
 		return value switch
 		{
-			Divorced => onDivorced(),
-			Married => onMarried(),
-			Single => onSingle(),
-			Widowed => onWidowed(),
+			Divorced x => onDivorced(x),
+			Married x => onMarried(x),
+			Single x => onSingle(x),
+			Widowed x => onWidowed(x),
 			_ => throw new UnreachableException(),
 		};
 	}
