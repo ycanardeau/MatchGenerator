@@ -255,7 +255,7 @@ internal class SourceGenerator : IIncrementalGenerator
 		SourceProductionContext context
 	)
 	{
-		foreach (INamedTypeSymbol type in targets.Distinct(SymbolEqualityComparer.Default))
+		foreach (var type in targets.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>())
 		{
 			if (type.TypeKind == TypeKind.Enum)
 			{
