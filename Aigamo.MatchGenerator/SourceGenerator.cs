@@ -186,17 +186,12 @@ internal class SourceGenerator : IIncrementalGenerator
 
 		foreach (var d in derived)
 		{
-			sb.AppendLineLF($"\t\t\t{d.Name} x => {ToParam(d.Name)}(x),");
+			sb.AppendLineLF($"\t\t\t{d.Name} x => on{d.Name}(x),");
 		}
 
 		sb.AppendLineLF("\t\t\t_ => throw new UnreachableException(),");
 		sb.AppendLineLF("\t\t};");
 		sb.AppendLineLF("\t}");
-	}
-
-	private static string ToParam(string typeName)
-	{
-		return $"on{typeName}";
 	}
 
 	private static void GenerateForUnion(
