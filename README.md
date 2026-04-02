@@ -2,7 +2,7 @@
 
 **Bring exhaustive pattern matching to C# enums and unions with zero boilerplate.**
 
-MatchGenerator is a Roslyn source generator that creates `Match` extension methods for your enums and discriminated-union-like types, enabling concise, expressive, and compile-time safe branching.
+[MatchGenerator](https://github.com/ycanardeau/MatchGenerator) is a Roslyn source generator that creates `Match` extension methods for your enums and discriminated-union-like types, enabling concise, expressive, and compile-time safe branching.
 
 ## Features
 
