@@ -25,4 +25,12 @@
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Link="README.md" />
+  </ItemGroup>
+
 </Project>
