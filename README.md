@@ -9,6 +9,7 @@
 - Generate `Match` extension methods for enums and unions
 - Exhaustive by design (no missing cases)
 - Attribute-driven (opt-in per type)
+- Works with external types you don't own (via `[assembly: GenerateMatchFor(typeof(T))]`)
 - Supports generics (`Match<U>`)
 - Respects effective accessibility
 - Zero runtime cost (pure source generation)
@@ -49,6 +50,32 @@ sealed record Married : MaritalStatus;
 sealed record Divorced : MaritalStatus;
 sealed record Widowed : MaritalStatus;
 ```
+
+#### External type example
+
+If the enum or union lives in another assembly — so you can't put `[GenerateMatch]` on it — target it by `typeof` with an assembly-level attribute instead:
+
+```csharp
+using Aigamo.MatchGenerator;
+
+[assembly: GenerateMatchFor(typeof(DayOfWeek))]
+```
+
+Then call `Match` exactly as you would on an annotated type:
+
+```csharp
+var label = today.Match(
+	onMonday: () => "Mon",
+	onTuesday: () => "Tue",
+	onWednesday: () => "Wed",
+	onThursday: () => "Thu",
+	onFriday: () => "Fri",
+	onSaturday: () => "Sat",
+	onSunday: () => "Sun"
+);
+```
+
+The generated method is identical to an annotated type's and is placed in the target type's namespace. Repeat the attribute (it allows multiple) to target several types. This works for external **enums**, and for unions whose derived types are declared in your own code (cross-assembly derived types are not discovered).
 
 ### 3. Use `Match`
 
