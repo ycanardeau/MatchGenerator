@@ -1,3 +1,8 @@
+using Aigamo.MatchGenerator;
+
+// Generate a Match for an enum we don't own (System.DayOfWeek).
+[assembly: GenerateMatchFor(typeof(DayOfWeek))]
+
 namespace Aigamo.MatchGenerator.ConsoleApp;
 
 [GenerateMatch]
@@ -41,5 +46,19 @@ class Program
 		);
 
 		Console.WriteLine(y);
+
+		var day = DayOfWeek.Monday;
+
+		var z = day.Match(
+			onSunday: () => "sunday",
+			onMonday: () => "monday",
+			onTuesday: () => "tuesday",
+			onWednesday: () => "wednesday",
+			onThursday: () => "thursday",
+			onFriday: () => "friday",
+			onSaturday: () => "saturday"
+		);
+
+		Console.WriteLine(z);
 	}
 }

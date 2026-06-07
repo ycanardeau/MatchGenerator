@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Aigamo.MatchGenerator.Models;
 
+// TODO: replace with [assembly: GenerateMatchFor(typeof(Accessibility))] once a preview
+// containing GenerateMatchFor is published and $(BootstrapVersion) is bumped to it.
 static file class AccessibilityMatchExtensions
 {
 	public static U Match<U>(

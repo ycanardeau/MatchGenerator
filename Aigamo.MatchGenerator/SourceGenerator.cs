@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Aigamo.MatchGenerator.Generators;
 using Aigamo.MatchGenerator.Models;
 using Microsoft.CodeAnalysis;
@@ -20,8 +21,21 @@ internal class SourceGenerator : IIncrementalGenerator
 				[AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum)]
 				internal sealed class GenerateMatchAttribute : Attribute;
 				""");
+
+			ctx.AddSource("GenerateMatchForAttribute.g.cs", """
+				using System;
+
+				namespace Aigamo.MatchGenerator;
+
+				[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+				internal sealed class GenerateMatchForAttribute(Type type) : Attribute
+				{
+					public Type Type { get; } = type;
+				}
+				""");
 		});
 
+		// Types annotated in this compilation: [GenerateMatch] on the declaration.
 		var targets = context.SyntaxProvider
 			.ForAttributeWithMetadataName(
 				"Aigamo.MatchGenerator.GenerateMatchAttribute",
@@ -29,13 +43,32 @@ internal class SourceGenerator : IIncrementalGenerator
 				static (ctx, _) => (INamedTypeSymbol)ctx.TargetSymbol
 			);
 
-		var compilationAndTargets = context.CompilationProvider.Combine(targets.Collect());
+		// Types you don't own, named by [assembly: GenerateMatchFor(typeof(T))].
+		var externalTargets = context.SyntaxProvider
+			.ForAttributeWithMetadataName(
+				"Aigamo.MatchGenerator.GenerateMatchForAttribute",
+				static (_, _) => true,
+				static (ctx, _) => ctx.Attributes
+					.Select(static a => a.ConstructorArguments.Length > 0
+						? a.ConstructorArguments[0].Value as INamedTypeSymbol
+						: null)
+					.OfType<INamedTypeSymbol>()
+					.ToImmutableArray()
+			);
+
+		var compilationAndTargets = context.CompilationProvider
+			.Combine(targets.Collect())
+			.Combine(externalTargets.Collect());
 
 		context.RegisterSourceOutput(compilationAndTargets, static (spc, source) =>
 		{
-			var (compilation, types) = source;
+			var ((compilation, types), externalTypes) = source;
 
-			var models = MatchModelFactory.Create(compilation, types);
+			var allTypes = types
+				.Concat(externalTypes.SelectMany(static x => (IEnumerable<INamedTypeSymbol>)x))
+				.ToImmutableArray();
+
+			var models = MatchModelFactory.Create(compilation, allTypes);
 
 			foreach (var model in models)
 			{
