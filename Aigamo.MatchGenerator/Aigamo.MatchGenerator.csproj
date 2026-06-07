@@ -20,6 +20,18 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
   </ItemGroup>
 
+  <!-- Bootstrap: a previously published build of this generator runs as an analyzer on this project's own source,
+       so MatchModel can use [GenerateMatch] instead of a hand-written Match extension. PackageDownload fetches the
+       package without adding a dependency edge (a same-id PackageReference is rejected with NU1108 "cycle"). -->
+  <PropertyGroup>
+    <BootstrapVersion>0.0.0-preview013</BootstrapVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageDownload Include="Aigamo.MatchGenerator" Version="[$(BootstrapVersion)]" />
+    <Analyzer Include="$(NuGetPackageRoot)aigamo.matchgenerator\$(BootstrapVersion)\analyzers\dotnet\cs\Aigamo.MatchGenerator.dll" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

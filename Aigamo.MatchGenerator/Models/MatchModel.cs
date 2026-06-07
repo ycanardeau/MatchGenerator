@@ -1,7 +1,6 @@
-using System.Diagnostics;
-
 namespace Aigamo.MatchGenerator.Models;
 
+[GenerateMatch]
 internal abstract record MatchModel(
 	string Name,
 	string? Namespace,
@@ -32,20 +31,3 @@ internal sealed record UnionMatchModel(
 	Accessibility,
 	$"{Name}{Constants.MatchExtensionClassSuffix}.g.cs"
 );
-
-internal static class MatchModelMatchExtensions
-{
-	public static U Match<U>(
-		this MatchModel value,
-		Func<EnumMatchModel, U> onEnumMatchModel,
-		Func<UnionMatchModel, U> onUnionMatchModel
-	)
-	{
-		return value switch
-		{
-			EnumMatchModel x => onEnumMatchModel(x),
-			UnionMatchModel x => onUnionMatchModel(x),
-			_ => throw new UnreachableException(),
-		};
-	}
-}
