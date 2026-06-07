@@ -75,7 +75,9 @@ var label = today.Match(
 );
 ```
 
-The generated method is identical to an annotated type's and is placed in the target type's namespace. Repeat the attribute (it allows multiple) to target several types. This works for external **enums**, and for unions whose derived types are declared in your own code (cross-assembly derived types are not discovered).
+The generated method is placed in the target type's namespace and is `internal` to your assembly (a local convenience, not public API on a type you don't own). Repeat the attribute (it allows multiple) to target several types. This works for external **enums**, and for unions whose derived types are declared in your own code (cross-assembly derived types are not discovered).
+
+If a target has nothing to match — it isn't an enum and has no derived types in your compilation — the generator reports `AMG001` and skips it.
 
 ### 3. Use `Match`
 

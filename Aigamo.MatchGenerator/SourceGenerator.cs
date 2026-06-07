@@ -44,16 +44,26 @@ internal class SourceGenerator : IIncrementalGenerator
 			);
 
 		// Types you don't own, named by [assembly: GenerateMatchFor(typeof(T))].
+		// Carry the attribute location so a bad target can be reported with a squiggle.
 		var externalTargets = context.SyntaxProvider
 			.ForAttributeWithMetadataName(
 				"Aigamo.MatchGenerator.GenerateMatchForAttribute",
 				static (_, _) => true,
-				static (ctx, _) => ctx.Attributes
-					.Select(static a => a.ConstructorArguments.Length > 0
-						? a.ConstructorArguments[0].Value as INamedTypeSymbol
-						: null)
-					.OfType<INamedTypeSymbol>()
-					.ToImmutableArray()
+				static (ctx, _) =>
+				{
+					var builder = ImmutableArray.CreateBuilder<(INamedTypeSymbol Type, Location Location)>();
+					foreach (var attribute in ctx.Attributes)
+					{
+						if (attribute.ConstructorArguments.Length > 0 &&
+							attribute.ConstructorArguments[0].Value is INamedTypeSymbol type)
+						{
+							var location = attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation()
+								?? Location.None;
+							builder.Add((type, location));
+						}
+					}
+					return builder.ToImmutable();
+				}
 			);
 
 		var compilationAndTargets = context.CompilationProvider
@@ -62,18 +72,36 @@ internal class SourceGenerator : IIncrementalGenerator
 
 		context.RegisterSourceOutput(compilationAndTargets, static (spc, source) =>
 		{
-			var ((compilation, types), externalTypes) = source;
+			var ((compilation, ownedTypes), externalGroups) = source;
 
-			var allTypes = types
-				.Concat(externalTypes.SelectMany(static x => (IEnumerable<INamedTypeSymbol>)x))
-				.ToImmutableArray();
+			var produced = new HashSet<string>();
 
-			var models = MatchModelFactory.Create(compilation, allTypes);
-
-			foreach (var model in models)
+			foreach (var model in MatchModelFactory.Create(compilation, ownedTypes))
 			{
-				var code = MatchCodeGenerator.Generate(model);
-				spc.AddSource(model.HintName, code);
+				spc.AddSource(model.HintName, MatchCodeGenerator.Generate(model));
+				produced.Add(model.HintName);
+			}
+
+			foreach (var (type, location) in externalGroups.SelectMany(static x => x))
+			{
+				var model = MatchModelFactory.CreateFor(compilation, type);
+
+				var hasCases = model is EnumMatchModel { Members.Length: > 0 }
+					or UnionMatchModel { DerivedTypes.Length: > 0 };
+				if (!hasCases)
+				{
+					spc.ReportDiagnostic(Diagnostic.Create(
+						Diagnostics.UnsupportedGenerateMatchForTarget,
+						location,
+						type.ToDisplayString()));
+					continue;
+				}
+
+				// Skip if an annotated type (or an earlier target) already produced this file.
+				if (produced.Add(model.HintName))
+				{
+					spc.AddSource(model.HintName, MatchCodeGenerator.Generate(model));
+				}
 			}
 		});
 	}

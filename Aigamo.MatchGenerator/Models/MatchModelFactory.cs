@@ -68,7 +68,7 @@ internal static class MatchModelFactory
 		return ToCode(accessibility);
 	}
 
-	private static EnumMatchModel CreateEnumModel(INamedTypeSymbol type)
+	private static EnumMatchModel CreateEnumModel(INamedTypeSymbol type, string accessibility)
 	{
 		var members = type.GetMembers()
 			.OfType<IFieldSymbol>()
@@ -80,8 +80,6 @@ internal static class MatchModelFactory
 		var namespaceName = type.ContainingNamespace.IsGlobalNamespace
 			? null
 			: type.ContainingNamespace.ToDisplayString();
-
-		var accessibility = GetEffectiveAccessibility(type);
 
 		return new EnumMatchModel(
 			Name: enumName,
@@ -131,7 +129,7 @@ internal static class MatchModelFactory
 		}
 	}
 
-	private static UnionMatchModel CreateUnionModel(INamedTypeSymbol type, Compilation compilation)
+	private static UnionMatchModel CreateUnionModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
 	{
 		var derived = GetDerivedTypes(type, compilation)
 			.Where(x => !x.IsAbstract)
@@ -143,8 +141,6 @@ internal static class MatchModelFactory
 			? null
 			: type.ContainingNamespace.ToDisplayString();
 
-		var accessibility = GetEffectiveAccessibility(type);
-
 		return new UnionMatchModel(
 			Name: baseName,
 			Namespace: namespaceName,
@@ -153,13 +149,25 @@ internal static class MatchModelFactory
 		);
 	}
 
+	private static MatchModel CreateModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
+	{
+		return type.TypeKind == TypeKind.Enum
+			? CreateEnumModel(type, accessibility)
+			: CreateUnionModel(type, compilation, accessibility);
+	}
+
 	public static IEnumerable<MatchModel> Create(Compilation compilation, ImmutableArray<INamedTypeSymbol> targets)
 	{
 		foreach (var type in targets.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>())
 		{
-			yield return type.TypeKind == TypeKind.Enum
-				? CreateEnumModel(type)
-				: CreateUnionModel(type, compilation);
+			yield return CreateModel(type, compilation, GetEffectiveAccessibility(type));
 		}
+	}
+
+	// For types targeted by [assembly: GenerateMatchFor(typeof(T))]. Generated as internal:
+	// the extension is a local convenience in your assembly, not public API on a type you don't own.
+	public static MatchModel CreateFor(Compilation compilation, INamedTypeSymbol type)
+	{
+		return CreateModel(type, compilation, accessibility: "internal");
 	}
 }
