@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Previously published version, used only to bootstrap the generator onto its own source (see Aigamo.MatchGenerator.csproj) -->
-    <PackageVersion Include="Aigamo.MatchGenerator" Version="0.0.0-preview013" />
+    <PackageVersion Include="Aigamo.MatchGenerator" Version="0.0.0-preview015" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />

@@ -1,38 +1,8 @@
 using System.Collections.Immutable;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Aigamo.MatchGenerator.Models;
-
-// TODO: replace with [assembly: GenerateMatchFor(typeof(Accessibility))] once a preview
-// containing GenerateMatchFor is published and $(BootstrapVersion) is bumped to it.
-static file class AccessibilityMatchExtensions
-{
-	public static U Match<U>(
-		this Accessibility value,
-		Func<U> onNotApplicable,
-		Func<U> onPrivate,
-		Func<U> onProtectedAndInternal,
-		Func<U> onProtected,
-		Func<U> onInternal,
-		Func<U> onProtectedOrInternal,
-		Func<U> onPublic
-	)
-	{
-		return value switch
-		{
-			Accessibility.NotApplicable => onNotApplicable(),
-			Accessibility.Private => onPrivate(),
-			Accessibility.ProtectedAndInternal => onProtectedAndInternal(),
-			Accessibility.Protected => onProtected(),
-			Accessibility.Internal => onInternal(),
-			Accessibility.ProtectedOrInternal => onProtectedOrInternal(),
-			Accessibility.Public => onPublic(),
-			_ => throw new UnreachableException(),
-		};
-	}
-}
 
 internal static class MatchModelFactory
 {
