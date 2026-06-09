@@ -73,6 +73,12 @@ internal static class MatchModelFactory
 		var members = type.GetMembers()
 			.OfType<IFieldSymbol>()
 			.Where(x => x.ConstantValue is not null)
+			// Collapse aliased members that share the same constant value (e.g.
+			// Accessibility.Friend == Accessibility.Internal). Emitting both would
+			// produce duplicate switch case labels, which won't compile. GetMembers
+			// preserves declaration order, so First() keeps the canonical member.
+			.GroupBy(x => x.ConstantValue)
+			.Select(g => g.First())
 			.OrderBy(x => x.Name)
 			.ToList();
 
