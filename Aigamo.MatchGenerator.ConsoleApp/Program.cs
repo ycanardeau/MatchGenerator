@@ -39,9 +39,9 @@ class Program
 		var maritalStatus = new Single();
 
 		var y = maritalStatus.Match(
-			onDivorced: x => "divorced",
-			onMarried: x => "married",
 			onSingle: x => "single",
+			onMarried: x => "married",
+			onDivorced: x => "divorced",
 			onWidowed: x => "widowed"
 		);
 

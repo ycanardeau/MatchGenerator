@@ -65,13 +65,13 @@ Then call `Match` exactly as you would on an annotated type:
 
 ```csharp
 var label = today.Match(
+	onSunday: () => "Sun",
 	onMonday: () => "Mon",
 	onTuesday: () => "Tue",
 	onWednesday: () => "Wed",
 	onThursday: () => "Thu",
 	onFriday: () => "Fri",
-	onSaturday: () => "Sat",
-	onSunday: () => "Sun"
+	onSaturday: () => "Sat"
 );
 ```
 
@@ -166,6 +166,17 @@ sealed record Separated : MaritalStatus;
 
 Existing `Match` calls will fail to compile until updated. This ensures no cases are missed.
 
+## Parameter Order
+
+The `Match` parameters follow **declaration order** — the order in which the enum members (or union derived types) appear in source — not alphabetical order. This keeps the parameter list append-stable: a case added at the end of the enum becomes the last parameter, so existing **positional** call sites keep compiling.
+
+Two caveats:
+
+- Inserting or reordering cases in the middle still shifts positions and can silently rebind positional arguments.
+- For unions, derived types can be spread across files, so "declaration order" is really source-traversal order and is less strictly append-stable.
+
+Because of this, prefer **named arguments** (`onSingle:`, `onMarried:`, …) — they are order-independent and the only fully safe call style across changes. The generated parameter names are designed for exactly this.
+
 ## Generated Code (Example)
 
 ### Enum
@@ -175,14 +186,14 @@ internal static class GenderMatchExtensions
 {
 	public static U Match<U>(
 		this Gender value,
-		Func<U> onFemale,
-		Func<U> onMale
+		Func<U> onMale,
+		Func<U> onFemale
 	)
 	{
 		return value switch
 		{
-			Gender.Female => onFemale(),
 			Gender.Male => onMale(),
+			Gender.Female => onFemale(),
 			_ => throw new UnreachableException(),
 		};
 	}
@@ -196,17 +207,17 @@ internal static class MaritalStatusMatchExtensions
 {
 	public static U Match<U>(
 		this MaritalStatus value,
-		Func<Divorced, U> onDivorced,
-		Func<Married, U> onMarried,
 		Func<Single, U> onSingle,
+		Func<Married, U> onMarried,
+		Func<Divorced, U> onDivorced,
 		Func<Widowed, U> onWidowed
 	)
 	{
 		return value switch
 		{
-			Divorced x => onDivorced(x),
-			Married x => onMarried(x),
 			Single x => onSingle(x),
+			Married x => onMarried(x),
+			Divorced x => onDivorced(x),
 			Widowed x => onWidowed(x),
 			_ => throw new UnreachableException(),
 		};

@@ -71,14 +71,14 @@ public enum Gender
 			{
 				public static U Match<U>(
 					this Gender value,
-					Func<U> onFemale,
-					Func<U> onMale
+					Func<U> onMale,
+					Func<U> onFemale
 				)
 				{
 					return value switch
 					{
-						Gender.Female => onFemale(),
 						Gender.Male => onMale(),
+						Gender.Female => onFemale(),
 						_ => throw new UnreachableException(),
 					};
 				}
@@ -116,14 +116,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onFemale,
-				Func<U> onMale
+				Func<U> onMale,
+				Func<U> onFemale
 			)
 			{
 				return value switch
 				{
-					Gender.Female => onFemale(),
 					Gender.Male => onMale(),
+					Gender.Female => onFemale(),
 					_ => throw new UnreachableException(),
 				};
 			}
@@ -164,14 +164,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onFemale,
-				Func<U> onMale
+				Func<U> onMale,
+				Func<U> onFemale
 			)
 			{
 				return value switch
 				{
-					Gender.Female => onFemale(),
 					Gender.Male => onMale(),
+					Gender.Female => onFemale(),
 					_ => throw new UnreachableException(),
 				};
 			}
@@ -212,14 +212,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onFemale,
-				Func<U> onMale
+				Func<U> onMale,
+				Func<U> onFemale
 			)
 			{
 				return value switch
 				{
-					Gender.Female => onFemale(),
 					Gender.Male => onMale(),
+					Gender.Female => onFemale(),
 					_ => throw new UnreachableException(),
 				};
 			}
@@ -263,14 +263,14 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Gender value,
-				Func<U> onFemale,
-				Func<U> onMale
+				Func<U> onMale,
+				Func<U> onFemale
 			)
 			{
 				return value switch
 				{
-					Gender.Female => onFemale(),
 					Gender.Male => onMale(),
+					Gender.Female => onFemale(),
 					_ => throw new UnreachableException(),
 				};
 			}
@@ -335,16 +335,16 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Color value,
-				Func<U> onBlue,
+				Func<U> onRed,
 				Func<U> onGreen,
-				Func<U> onRed
+				Func<U> onBlue
 			)
 			{
 				return value switch
 				{
-					Color.Blue => onBlue(),
-					Color.Green => onGreen(),
 					Color.Red => onRed(),
+					Color.Green => onGreen(),
+					Color.Blue => onBlue(),
 					_ => throw new UnreachableException(),
 				};
 			}
@@ -390,17 +390,17 @@ public enum Gender
 		{
 			public static U Match<U>(
 				this Visibility value,
-				Func<U> onInternal,
 				Func<U> onNone,
 				Func<U> onPrivate,
+				Func<U> onInternal,
 				Func<U> onPublic
 			)
 			{
 				return value switch
 				{
-					Visibility.Internal => onInternal(),
 					Visibility.None => onNone(),
 					Visibility.Private => onPrivate(),
+					Visibility.Internal => onInternal(),
 					Visibility.Public => onPublic(),
 					_ => throw new UnreachableException(),
 				};
@@ -458,17 +458,17 @@ public enum Gender
 	{
 		public static U Match<U>(
 			this MaritalStatus value,
-			Func<Divorced, U> onDivorced,
-			Func<Married, U> onMarried,
 			Func<Single, U> onSingle,
+			Func<Married, U> onMarried,
+			Func<Divorced, U> onDivorced,
 			Func<Widowed, U> onWidowed
 		)
 		{
 			return value switch
 			{
-				Divorced x => onDivorced(x),
-				Married x => onMarried(x),
 				Single x => onSingle(x),
+				Married x => onMarried(x),
+				Divorced x => onDivorced(x),
 				Widowed x => onWidowed(x),
 				_ => throw new UnreachableException(),
 			};
@@ -506,17 +506,17 @@ public enum Gender
 	{
 		public static U Match<U>(
 			this MaritalStatus value,
-			Func<Divorced, U> onDivorced,
-			Func<Married, U> onMarried,
 			Func<Single, U> onSingle,
+			Func<Married, U> onMarried,
+			Func<Divorced, U> onDivorced,
 			Func<Widowed, U> onWidowed
 		)
 		{
 			return value switch
 			{
-				Divorced x => onDivorced(x),
-				Married x => onMarried(x),
 				Single x => onSingle(x),
+				Married x => onMarried(x),
+				Divorced x => onDivorced(x),
 				Widowed x => onWidowed(x),
 				_ => throw new UnreachableException(),
 			};
@@ -558,17 +558,17 @@ public enum Gender
 	{
 		public static U Match<U>(
 			this MaritalStatus value,
-			Func<Divorced, U> onDivorced,
-			Func<Married, U> onMarried,
 			Func<Single, U> onSingle,
+			Func<Married, U> onMarried,
+			Func<Divorced, U> onDivorced,
 			Func<Widowed, U> onWidowed
 		)
 		{
 			return value switch
 			{
-				Divorced x => onDivorced(x),
-				Married x => onMarried(x),
 				Single x => onSingle(x),
+				Married x => onMarried(x),
+				Divorced x => onDivorced(x),
 				Widowed x => onWidowed(x),
 				_ => throw new UnreachableException(),
 			};
@@ -613,17 +613,17 @@ public enum Gender
 	{
 		public static U Match<U>(
 			this MaritalStatus value,
-			Func<Divorced, U> onDivorced,
-			Func<Married, U> onMarried,
 			Func<Single, U> onSingle,
+			Func<Married, U> onMarried,
+			Func<Divorced, U> onDivorced,
 			Func<Widowed, U> onWidowed
 		)
 		{
 			return value switch
 			{
-				Divorced x => onDivorced(x),
-				Married x => onMarried(x),
 				Single x => onSingle(x),
+				Married x => onMarried(x),
+				Divorced x => onDivorced(x),
 				Widowed x => onWidowed(x),
 				_ => throw new UnreachableException(),
 			};

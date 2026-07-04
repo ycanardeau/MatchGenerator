@@ -14,11 +14,11 @@ internal static class MatchModelFactory
 	private static string ToCode(Accessibility accessibility)
 	{
 		return accessibility.Match(
+			onInternal: () => "internal",
 			onNotApplicable: () => "internal",
 			onPrivate: () => "private",
-			onProtectedAndInternal: () => "private protected",
 			onProtected: () => "protected",
-			onInternal: () => "internal",
+			onProtectedAndInternal: () => "private protected",
 			onProtectedOrInternal: () => "protected internal",
 			onPublic: () => "public"
 		);
@@ -49,7 +49,11 @@ internal static class MatchModelFactory
 			// preserves declaration order, so First() keeps the canonical member.
 			.GroupBy(x => x.ConstantValue)
 			.Select(g => g.First())
-			.OrderBy(x => x.Name)
+			// Emit parameters in declaration order rather than sorting by name. This
+			// keeps the Match(...) parameter list append-stable: a member added at the
+			// end of the enum becomes the last parameter, so existing positional call
+			// sites keep compiling. (Reordering or inserting members mid-list still
+			// shifts positions; named arguments are the only fully safe call style.)
 			.ToList();
 
 		var enumName = type.Name;
@@ -107,9 +111,13 @@ internal static class MatchModelFactory
 
 	private static UnionMatchModel CreateUnionModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
 	{
+		// Preserve source-traversal order (syntax tree order, then declaration order
+		// within each tree) instead of sorting by name, mirroring the enum path so a
+		// newly added derived type tends to land at the end of the parameter list.
+		// Note: because derived types can be spread across files, this is less strictly
+		// append-stable than the enum case — named arguments remain the safe call style.
 		var derived = GetDerivedTypes(type, compilation)
 			.Where(x => !x.IsAbstract)
-			.OrderBy(x => x.Name)
 			.ToList();
 
 		var baseName = type.Name;
