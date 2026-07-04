@@ -177,6 +177,12 @@ Two caveats:
 
 Because of this, prefer **named arguments** (`onSingle:`, `onMarried:`, …) — they are order-independent and the only fully safe call style across changes. The generated parameter names are designed for exactly this.
 
+To enforce it, the package ships an analyzer (**AMG002**) that reports an error when `Match` is called with positional arguments. If you'd rather have it as a warning (or turn it off entirely), relax it in `.editorconfig`:
+
+```ini
+dotnet_diagnostic.AMG002.severity = warning
+```
+
 ## Generated Code (Example)
 
 ### Enum
