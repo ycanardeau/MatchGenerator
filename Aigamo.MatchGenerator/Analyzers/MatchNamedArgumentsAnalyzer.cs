@@ -16,13 +16,6 @@ public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
 		[Diagnostics.UseNamedArgumentsForMatch];
 
-	public override void Initialize(AnalysisContext context)
-	{
-		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-		context.EnableConcurrentExecution();
-		context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
-	}
-
 	private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
 	{
 		var invocation = (InvocationExpressionSyntax)context.Node;
@@ -37,7 +30,8 @@ public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 				Name: "Match",
 				MethodKind: MethodKind.ReducedExtension,
 				ContainingType: { IsStatic: true } containingType,
-			})
+			}
+		)
 		{
 			return;
 		}
@@ -56,8 +50,16 @@ public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 			{
 				context.ReportDiagnostic(Diagnostic.Create(
 					Diagnostics.UseNamedArgumentsForMatch,
-					argument.GetLocation()));
+					argument.GetLocation()
+				));
 			}
 		}
+	}
+
+	public override void Initialize(AnalysisContext context)
+	{
+		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+		context.EnableConcurrentExecution();
+		context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
 	}
 }
