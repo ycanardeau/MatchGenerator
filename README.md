@@ -22,6 +22,19 @@
 dotnet add package Aigamo.MatchGenerator
 ```
 
+> **Tip:** To share the reference across every project in a directory, add a `Directory.Build.props`. Combined with a global `Using`, this also drops the need for a per-file `using Aigamo.MatchGenerator;`:
+>
+> ```xml
+> <Project>
+>
+>   <ItemGroup>
+>     <PackageReference Include="Aigamo.MatchGenerator" />
+>     <Using Include="Aigamo.MatchGenerator" />
+>   </ItemGroup>
+>
+> </Project>
+> ```
+
 ### 2. Annotate your type
 
 #### Enum example
