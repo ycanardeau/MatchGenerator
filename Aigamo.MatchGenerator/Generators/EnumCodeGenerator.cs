@@ -25,7 +25,7 @@ internal static class EnumCodeGenerator
 		sb.AppendLineLF($"{model.Accessibility} static class {model.Name}{Constants.MatchExtensionClassSuffix}");
 		sb.AppendLineLF("{");
 		sb.AppendLineLF("\tpublic static U Match<U>(");
-		sb.AppendLineLF($"\t\tthis {model.Name} value,");
+		sb.AppendLineLF($"\t\tthis {model.TypeName} value,");
 
 		sb.AppendLineLF(string.Join(",\n", model.Members.Select(x => $"\t\tFunc<U> on{x}")));
 
@@ -36,7 +36,7 @@ internal static class EnumCodeGenerator
 
 		foreach (var member in model.Members)
 		{
-			sb.AppendLineLF($"\t\t\t{model.Name}.{member} => on{member}(),");
+			sb.AppendLineLF($"\t\t\t{model.TypeName}.{member} => on{member}(),");
 		}
 
 		sb.AppendLineLF("\t\t\t_ => throw new UnreachableException(),");

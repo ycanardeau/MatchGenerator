@@ -9,9 +9,9 @@ internal static class UnionCodeGenerator
 	private static void GenerateMatchMethod(StringBuilder sb, UnionMatchModel model)
 	{
 		sb.AppendLineLF($"\tpublic static U Match<U>(");
-		sb.AppendLineLF($"\t\tthis {model.Name} value,");
+		sb.AppendLineLF($"\t\tthis {model.TypeName} value,");
 
-		sb.AppendLineLF(string.Join(",\n", model.DerivedTypes.Select(x => $"\t\tFunc<{x}, U> on{x}")));
+		sb.AppendLineLF(string.Join(",\n", model.DerivedTypes.Select(x => $"\t\tFunc<{x.TypeName}, U> on{x.Name}")));
 
 		sb.AppendLineLF("\t)");
 		sb.AppendLineLF("\t{");
@@ -20,7 +20,7 @@ internal static class UnionCodeGenerator
 
 		foreach (var d in model.DerivedTypes)
 		{
-			sb.AppendLineLF($"\t\t\t{d} x => on{d}(x),");
+			sb.AppendLineLF($"\t\t\t{d.TypeName} x => on{d.Name}(x),");
 		}
 
 		sb.AppendLineLF("\t\t\t_ => throw new UnreachableException(),");

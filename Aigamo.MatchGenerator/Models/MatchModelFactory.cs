@@ -6,6 +6,14 @@ namespace Aigamo.MatchGenerator.Models;
 
 internal static class MatchModelFactory
 {
+	// Qualify a type by its containing types but not its namespace: a nested type renders
+	// as Container.MaritalStatus (or MaritalStatus.Single), a top-level type as its bare
+	// name. The generated extension class shares the target's namespace, so the namespace
+	// is redundant either way, but the containing types are needed to reference nested targets.
+	private static readonly SymbolDisplayFormat s_typeNameFormat = new(
+		typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes
+	);
+
 	private static Accessibility Min(Accessibility left, Accessibility right)
 	{
 		return (Accessibility)Math.Min((int)left, (int)right);
@@ -63,6 +71,7 @@ internal static class MatchModelFactory
 
 		return new EnumMatchModel(
 			Name: enumName,
+			TypeName: type.ToDisplayString(s_typeNameFormat),
 			Namespace: namespaceName,
 			Accessibility: accessibility,
 			Members: [.. members.Select(x => x.Name)]
@@ -127,9 +136,13 @@ internal static class MatchModelFactory
 
 		return new UnionMatchModel(
 			Name: baseName,
+			TypeName: type.ToDisplayString(s_typeNameFormat),
 			Namespace: namespaceName,
 			Accessibility: accessibility,
-			DerivedTypes: [.. derived.Select(x => x.Name)]
+			DerivedTypes: [.. derived.Select(x => new DerivedType(
+				Name: x.Name,
+				TypeName: x.ToDisplayString(s_typeNameFormat)
+			))]
 		);
 	}
 
