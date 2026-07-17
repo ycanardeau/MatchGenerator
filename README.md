@@ -56,13 +56,18 @@ public enum Gender
 using Aigamo.MatchGenerator;
 
 [GenerateMatch]
-abstract record MaritalStatus;
+abstract record MaritalStatus
+{
+	private MaritalStatus() { }
 
-sealed record Single : MaritalStatus;
-sealed record Married : MaritalStatus;
-sealed record Divorced : MaritalStatus;
-sealed record Widowed : MaritalStatus;
+	public sealed record Single : MaritalStatus;
+	public sealed record Married : MaritalStatus;
+	public sealed record Divorced : MaritalStatus;
+	public sealed record Widowed : MaritalStatus;
+}
 ```
+
+Nesting the cases inside the base type and giving it a `private` constructor makes the hierarchy **closed** — no case can be declared outside `MaritalStatus`. The generator qualifies the nested cases by their containing type (`MaritalStatus.Single`, …) so the generated extension resolves them correctly. Top-level derived types work too; nesting is just a common way to model a closed union.
 
 #### External type example
 
@@ -134,10 +139,10 @@ var message = gender switch
 ```csharp
 var message = maritalStatus switch
 {
-	Single x => "single",
-	Married x => "married",
-	Divorced x => "divorced",
-	Widowed x => "widowed",
+	MaritalStatus.Single x => "single",
+	MaritalStatus.Married x => "married",
+	MaritalStatus.Divorced x => "divorced",
+	MaritalStatus.Widowed x => "widowed",
 	_ => throw new UnreachableException(),
 };
 ```
@@ -174,7 +179,7 @@ public enum Gender
 or
 
 ```csharp
-sealed record Separated : MaritalStatus;
+public sealed record Separated : MaritalStatus;
 ```
 
 Existing `Match` calls will fail to compile until updated. This ensures no cases are missed.
@@ -226,18 +231,18 @@ internal static class MaritalStatusMatchExtensions
 {
 	public static U Match<U>(
 		this MaritalStatus value,
-		Func<Single, U> onSingle,
-		Func<Married, U> onMarried,
-		Func<Divorced, U> onDivorced,
-		Func<Widowed, U> onWidowed
+		Func<MaritalStatus.Single, U> onSingle,
+		Func<MaritalStatus.Married, U> onMarried,
+		Func<MaritalStatus.Divorced, U> onDivorced,
+		Func<MaritalStatus.Widowed, U> onWidowed
 	)
 	{
 		return value switch
 		{
-			Single x => onSingle(x),
-			Married x => onMarried(x),
-			Divorced x => onDivorced(x),
-			Widowed x => onWidowed(x),
+			MaritalStatus.Single x => onSingle(x),
+			MaritalStatus.Married x => onMarried(x),
+			MaritalStatus.Divorced x => onDivorced(x),
+			MaritalStatus.Widowed x => onWidowed(x),
 			_ => throw new UnreachableException(),
 		};
 	}

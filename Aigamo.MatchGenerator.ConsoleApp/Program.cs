@@ -13,15 +13,15 @@ enum Gender
 }
 
 [GenerateMatch]
-abstract record MaritalStatus;
+abstract record MaritalStatus
+{
+	private MaritalStatus() { }
 
-sealed record Single : MaritalStatus;
-
-sealed record Married : MaritalStatus;
-
-sealed record Divorced : MaritalStatus;
-
-sealed record Widowed : MaritalStatus;
+	public sealed record Single : MaritalStatus;
+	public sealed record Married : MaritalStatus;
+	public sealed record Divorced : MaritalStatus;
+	public sealed record Widowed : MaritalStatus;
+}
 
 class Program
 {
@@ -36,7 +36,7 @@ class Program
 
 		Console.WriteLine(x);
 
-		var maritalStatus = new Single();
+		var maritalStatus = new MaritalStatus.Single();
 
 		var y = maritalStatus.Match(
 			onSingle: x => "single",
