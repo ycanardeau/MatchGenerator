@@ -22,4 +22,14 @@ internal static class Diagnostics
 		isEnabledByDefault: true,
 		description: "Match parameters follow declaration order, so a positional argument can silently rebind to a different case when one is added, removed, or reordered. Named arguments are order-independent and the safe call style."
 	);
+
+	public static readonly DiagnosticDescriptor MarkBaseTypeClosed = new(
+		id: "AMG003",
+		title: "Mark the Match base type as closed",
+		messageFormat: "Mark base type '{0}' as closed so its generated Match stays exhaustive as derived types change",
+		category: "Usage",
+		defaultSeverity: DiagnosticSeverity.Warning,
+		isEnabledByDefault: true,
+		description: "A [GenerateMatch] base type whose hierarchy is open can gain a derived type the generated Match does not handle, silently losing exhaustiveness. The C# 15 'closed' modifier constrains the hierarchy so every case is known at compile time."
+	);
 }

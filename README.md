@@ -69,6 +69,25 @@ abstract record MaritalStatus
 
 Nesting the cases inside the base type and giving it a `private` constructor makes the hierarchy **closed** — no case can be declared outside `MaritalStatus`. The generator qualifies the nested cases by their containing type (`MaritalStatus.Single`, …) so the generated extension resolves them correctly. Top-level derived types work too; nesting is just a common way to model a closed union.
 
+On C# 15 and later, prefer the language-native `closed` modifier to constrain the hierarchy directly:
+
+```csharp
+[GenerateMatch]
+public closed record MaritalStatus
+{
+	public sealed record Single : MaritalStatus;
+	public sealed record Married : MaritalStatus;
+	public sealed record Divorced : MaritalStatus;
+	public sealed record Widowed : MaritalStatus;
+}
+```
+
+The package ships an analyzer (**AMG003**) that reports a warning when a `[GenerateMatch]` base type is not `closed`: an open hierarchy can gain a derived type the generated `Match` never handles, silently dropping a case. The warning only fires when the compiler supports `closed` (C# 15+), so earlier language versions are unaffected. Relax or disable it in `.editorconfig`:
+
+```ini
+dotnet_diagnostic.AMG003.severity = suggestion
+```
+
 #### External type example
 
 If the enum or union lives in another assembly — so you can't put `[GenerateMatch]` on it — target it by `typeof` with an assembly-level attribute instead:
