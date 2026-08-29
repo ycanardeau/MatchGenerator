@@ -9,27 +9,22 @@ internal sealed record DerivedType(string Name, string TypeName);
 // TypeName is qualified by containing types (Container.MaritalStatus for a nested target)
 // so the generated extension class, which lives outside the target, can reference it.
 [GenerateMatch]
-internal closed record MatchModel(
-	string Name,
-	string TypeName,
-	string? Namespace,
-	string Accessibility,
-	string HintName
-)
+internal closed record MatchModel
 {
+	public string HintName { get; }
+
+	private MatchModel(string hintName)
+	{
+		HintName = hintName;
+	}
+
 	internal sealed record Enum(
 		string Name,
 		string TypeName,
 		string? Namespace,
 		string Accessibility,
 		string[] Members
-	) : MatchModel(
-		Name,
-		TypeName,
-		Namespace,
-		Accessibility,
-		$"{Name}{Constants.MatchExtensionClassSuffix}.g.cs"
-	);
+	) : MatchModel($"{Name}{Constants.MatchExtensionClassSuffix}.g.cs");
 
 	internal sealed record Union(
 		string Name,
@@ -37,11 +32,5 @@ internal closed record MatchModel(
 		string? Namespace,
 		string Accessibility,
 		DerivedType[] DerivedTypes
-	) : MatchModel(
-		Name,
-		TypeName,
-		Namespace,
-		Accessibility,
-		$"{Name}{Constants.MatchExtensionClassSuffix}.g.cs"
-	);
+	) : MatchModel($"{Name}{Constants.MatchExtensionClassSuffix}.g.cs");
 }
