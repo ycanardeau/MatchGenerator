@@ -46,7 +46,7 @@ internal static class MatchModelFactory
 		return ToCode(accessibility);
 	}
 
-	private static EnumMatchModel CreateEnumModel(INamedTypeSymbol type, string accessibility)
+	private static MatchModel.Enum CreateEnumModel(INamedTypeSymbol type, string accessibility)
 	{
 		var members = type.GetMembers()
 			.OfType<IFieldSymbol>()
@@ -69,7 +69,7 @@ internal static class MatchModelFactory
 			? null
 			: type.ContainingNamespace.ToDisplayString();
 
-		return new EnumMatchModel(
+		return new MatchModel.Enum(
 			Name: enumName,
 			TypeName: type.ToDisplayString(s_typeNameFormat),
 			Namespace: namespaceName,
@@ -118,7 +118,7 @@ internal static class MatchModelFactory
 		}
 	}
 
-	private static UnionMatchModel CreateUnionModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
+	private static MatchModel.Union CreateUnionModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
 	{
 		// Preserve source-traversal order (syntax tree order, then declaration order
 		// within each tree) instead of sorting by name, mirroring the enum path so a
@@ -134,7 +134,7 @@ internal static class MatchModelFactory
 			? null
 			: type.ContainingNamespace.ToDisplayString();
 
-		return new UnionMatchModel(
+		return new MatchModel.Union(
 			Name: baseName,
 			TypeName: type.ToDisplayString(s_typeNameFormat),
 			Namespace: namespaceName,

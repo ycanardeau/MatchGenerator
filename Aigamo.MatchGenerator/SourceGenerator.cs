@@ -86,8 +86,8 @@ internal class SourceGenerator : IIncrementalGenerator
 			{
 				var model = MatchModelFactory.CreateFor(compilation, type);
 
-				var hasCases = model is EnumMatchModel { Members.Length: > 0 }
-					or UnionMatchModel { DerivedTypes.Length: > 0 };
+				var hasCases = model is MatchModel.Enum { Members.Length: > 0 }
+					or MatchModel.Union { DerivedTypes.Length: > 0 };
 				if (!hasCases)
 				{
 					spc.ReportDiagnostic(Diagnostic.Create(

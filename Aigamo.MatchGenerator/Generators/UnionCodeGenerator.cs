@@ -6,7 +6,7 @@ namespace Aigamo.MatchGenerator.Generators;
 
 internal static class UnionCodeGenerator
 {
-	private static void GenerateMatchMethod(StringBuilder sb, UnionMatchModel model)
+	private static void GenerateMatchMethod(StringBuilder sb, MatchModel.Union model)
 	{
 		sb.AppendLineLF($"\tpublic static U Match<U>(");
 		sb.AppendLineLF($"\t\tthis {model.TypeName} value,");
@@ -28,7 +28,7 @@ internal static class UnionCodeGenerator
 		sb.AppendLineLF("\t}");
 	}
 
-	public static string Generate(UnionMatchModel model)
+	public static string Generate(MatchModel.Union model)
 	{
 		var sb = new StringBuilder();
 

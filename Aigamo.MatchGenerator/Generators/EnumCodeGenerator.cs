@@ -6,7 +6,7 @@ namespace Aigamo.MatchGenerator.Generators;
 
 internal static class EnumCodeGenerator
 {
-	public static string Generate(EnumMatchModel model)
+	public static string Generate(MatchModel.Enum model)
 	{
 		var sb = new StringBuilder();
 

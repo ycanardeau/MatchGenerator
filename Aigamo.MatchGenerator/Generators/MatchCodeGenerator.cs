@@ -7,8 +7,8 @@ internal static class MatchCodeGenerator
 	public static string Generate(MatchModel model)
 	{
 		return model.Match(
-			onEnumMatchModel: x => EnumCodeGenerator.Generate(x),
-			onUnionMatchModel: x => UnionCodeGenerator.Generate(x)
+			onEnum: x => EnumCodeGenerator.Generate(x),
+			onUnion: x => UnionCodeGenerator.Generate(x)
 		);
 	}
 }
