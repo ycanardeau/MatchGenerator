@@ -13,7 +13,7 @@ enum Gender
 }
 
 [GenerateMatch]
-abstract record MaritalStatus
+closed record MaritalStatus
 {
 	private MaritalStatus() { }
 

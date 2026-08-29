@@ -4,7 +4,7 @@ namespace Aigamo.MatchGenerator.Models;
 // TypeName is qualified by containing types (Container.MaritalStatus for a nested target)
 // so the generated extension class, which lives outside the target, can reference it.
 [GenerateMatch]
-internal abstract record MatchModel(
+internal closed record MatchModel(
 	string Name,
 	string TypeName,
 	string? Namespace,
