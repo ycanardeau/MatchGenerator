@@ -69,7 +69,7 @@ abstract record MaritalStatus
 
 Nesting the cases inside the base type and giving it a `private` constructor makes the hierarchy **closed** — no case can be declared outside `MaritalStatus`. The generator qualifies the nested cases by their containing type (`MaritalStatus.Single`, …) so the generated extension resolves them correctly. Top-level derived types work too; nesting is just a common way to model a closed union.
 
-On C# 15 and later, prefer the language-native `closed` modifier to constrain the hierarchy directly:
+On C# 15 and later, prefer the language-native [`closed` modifier](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/closed) to constrain the hierarchy directly:
 
 ```csharp
 [GenerateMatch]
