@@ -10,9 +10,28 @@ internal static class MatchModelFactory
 	// as Container.MaritalStatus (or MaritalStatus.Single), a top-level type as its bare
 	// name. The generated extension class shares the target's namespace, so the namespace
 	// is redundant either way, but the containing types are needed to reference nested targets.
+	// Include type parameters so a generic base renders as Option<T> (and its cases as
+	// Option<T>.Some), matching how the extension class, which lives outside the type,
+	// must spell them.
 	private static readonly SymbolDisplayFormat s_typeNameFormat = new(
-		typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes
+		typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
+		genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters
 	);
+
+	// The type parameters in scope for the extension method, outermost containing type
+	// first: a generic base contributes its own, and a base nested in a generic container
+	// contributes the container's too, since the qualified TypeName references both.
+	private static string[] GetTypeParameters(INamedTypeSymbol type)
+	{
+		var levels = new List<INamedTypeSymbol>();
+		for (var current = type; current is not null; current = current.ContainingType)
+		{
+			levels.Add(current);
+		}
+		levels.Reverse();
+
+		return [.. levels.SelectMany(x => x.TypeParameters).Select(x => x.Name)];
+	}
 
 	private static Accessibility Min(Accessibility left, Accessibility right)
 	{
@@ -74,6 +93,7 @@ internal static class MatchModelFactory
 			TypeName: type.ToDisplayString(s_typeNameFormat),
 			Namespace: namespaceName,
 			Accessibility: accessibility,
+			TypeParameters: GetTypeParameters(type),
 			Members: [.. members.Select(x => x.Name)]
 		);
 	}
@@ -139,6 +159,7 @@ internal static class MatchModelFactory
 			TypeName: type.ToDisplayString(s_typeNameFormat),
 			Namespace: namespaceName,
 			Accessibility: accessibility,
+			TypeParameters: GetTypeParameters(type),
 			DerivedTypes: [.. derived.Select(x => new DerivedType(
 				Name: x.Name,
 				TypeName: x.ToDisplayString(s_typeNameFormat)

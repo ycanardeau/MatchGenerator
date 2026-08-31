@@ -10,7 +10,7 @@
 - Exhaustive by design (no missing cases)
 - Attribute-driven (opt-in per type)
 - Works with external types you don't own (via `[assembly: GenerateMatchFor(typeof(T))]`)
-- Supports generics (`Match<U>`)
+- Supports generic base types (`Option<T>`, `Either<L, R>`, recursive `List<T>`, …)
 - Respects effective accessibility
 - Zero runtime cost (pure source generation)
 
@@ -87,6 +87,25 @@ The package ships an analyzer (**AMG003**) that reports a warning when a `[Gener
 ```ini
 dotnet_diagnostic.AMG003.severity = suggestion
 ```
+
+#### Generic union example
+
+The base type can be generic. Its type parameters flow through to the generated `Match` method, which appends the result type parameter (`U`) after them:
+
+```csharp
+using Aigamo.MatchGenerator;
+
+[GenerateMatch]
+closed record Option<T>
+{
+	private Option() { }
+
+	public sealed record Some(T Value) : Option<T>;
+	public sealed record None : Option<T>;
+}
+```
+
+Multiple type parameters (`Either<L, R>`) and recursive definitions (`List<T>` whose `Cons` case holds a `List<T>` tail) work the same way — see the [generated code](#generic-union) below.
 
 #### External type example
 
@@ -262,6 +281,50 @@ internal static class MaritalStatusMatchExtensions
 			MaritalStatus.Married x => onMarried(x),
 			MaritalStatus.Divorced x => onDivorced(x),
 			MaritalStatus.Widowed x => onWidowed(x),
+			_ => throw new UnreachableException(),
+		};
+	}
+}
+```
+
+### Generic union
+
+The base type's type parameters are declared on the method, ahead of the result type `U`, and the cases are qualified by the constructed base (`Option<T>.Some`):
+
+```csharp
+internal static class OptionMatchExtensions
+{
+	public static U Match<T, U>(
+		this Option<T> value,
+		Func<Option<T>.Some, U> onSome,
+		Func<Option<T>.None, U> onNone
+	)
+	{
+		return value switch
+		{
+			Option<T>.Some x => onSome(x),
+			Option<T>.None x => onNone(x),
+			_ => throw new UnreachableException(),
+		};
+	}
+}
+```
+
+Multiple type parameters carry through in declaration order — `Either<L, R>` produces `Match<L, R, U>` — and recursive definitions such as `List<T>` are handled without special-casing:
+
+```csharp
+internal static class ListMatchExtensions
+{
+	public static U Match<T, U>(
+		this List<T> value,
+		Func<List<T>.Empty, U> onEmpty,
+		Func<List<T>.Cons, U> onCons
+	)
+	{
+		return value switch
+		{
+			List<T>.Empty x => onEmpty(x),
+			List<T>.Cons x => onCons(x),
 			_ => throw new UnreachableException(),
 		};
 	}

@@ -24,7 +24,7 @@ internal static class EnumCodeGenerator
 		sb.AppendLineLF();
 		sb.AppendLineLF($"{model.Accessibility} static class {model.Name}{Constants.MatchExtensionClassSuffix}");
 		sb.AppendLineLF("{");
-		sb.AppendLineLF("\tpublic static U Match<U>(");
+		sb.AppendLineLF($"\tpublic static U Match<{model.TypeParameters.ToMethodTypeParameterPrefix()}U>(");
 		sb.AppendLineLF($"\t\tthis {model.TypeName} value,");
 
 		sb.AppendLineLF(string.Join(",\n", model.Members.Select(x => $"\t\tFunc<U> on{x}")));

@@ -23,6 +23,7 @@ internal closed record MatchModel
 		string TypeName,
 		string? Namespace,
 		string Accessibility,
+		string[] TypeParameters,
 		string[] Members
 	) : MatchModel($"{Name}{Constants.MatchExtensionClassSuffix}.g.cs");
 
@@ -31,6 +32,7 @@ internal closed record MatchModel
 		string TypeName,
 		string? Namespace,
 		string Accessibility,
+		string[] TypeParameters,
 		DerivedType[] DerivedTypes
 	) : MatchModel($"{Name}{Constants.MatchExtensionClassSuffix}.g.cs");
 }
