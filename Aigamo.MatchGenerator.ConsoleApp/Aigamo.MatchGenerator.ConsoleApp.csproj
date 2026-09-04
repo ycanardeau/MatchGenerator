@@ -6,6 +6,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aigamo.MatchGenerator\Aigamo.MatchGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <!-- Load the code-fix provider as an analyzer too, so the AMG003 quick fix appears in the IDE
+         for this dogfooding project the same way it does for consumers of the packed NuGet package.
+         The generator reference above only supplies the generator DLL, not the code-fix DLL. -->
+    <ProjectReference Include="..\Aigamo.MatchGenerator.CodeFixes\Aigamo.MatchGenerator.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

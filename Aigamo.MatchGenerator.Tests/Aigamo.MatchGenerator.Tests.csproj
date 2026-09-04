@@ -11,6 +11,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
@@ -18,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aigamo.MatchGenerator\Aigamo.MatchGenerator.csproj" />
+    <ProjectReference Include="..\Aigamo.MatchGenerator.CodeFixes\Aigamo.MatchGenerator.CodeFixes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

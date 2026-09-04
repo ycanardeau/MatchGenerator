@@ -82,7 +82,7 @@ public closed record MaritalStatus
 }
 ```
 
-The package ships an analyzer (**AMG003**) that reports a warning when a `[GenerateMatch]` base type is not `closed`: an open hierarchy can gain a derived type the generated `Match` never handles, silently dropping a case. The warning only fires when the compiler supports `closed` (C# 15+), so earlier language versions are unaffected. Relax or disable it in `.editorconfig`:
+The package ships an analyzer (**AMG003**) that reports a warning when a `[GenerateMatch]` base type is not `closed`: an open hierarchy can gain a derived type the generated `Match` never handles, silently dropping a case. The warning only fires when the compiler supports `closed` (C# 15+), so earlier language versions are unaffected. A quick fix ("Mark base type as closed") adds the `closed` modifier for you. Relax or disable it in `.editorconfig`:
 
 ```ini
 dotnet_diagnostic.AMG003.severity = suggestion

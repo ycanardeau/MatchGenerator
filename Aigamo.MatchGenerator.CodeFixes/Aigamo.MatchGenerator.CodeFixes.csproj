@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <!-- Packed into the generator's NuGet package (see Aigamo.MatchGenerator.csproj), never on its own. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- A code fix runs only in an IDE host, which supplies the Workspaces assemblies, so this is
+         a compile-time-only reference. Keeping it in a separate assembly from the analyzers is what
+         RS1038 requires (Workspaces is absent during command-line compilation). -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

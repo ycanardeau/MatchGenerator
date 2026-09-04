@@ -35,9 +35,18 @@
     <Analyzer Include="$(NuGetPackageRoot)aigamo.matchgenerator\$(BootstrapVersion)\analyzers\dotnet\cs\Aigamo.MatchGenerator.dll" />
   </ItemGroup>
 
+  <!-- Build the code-fix assembly alongside this one (ReferenceOutputAssembly=false: it ships in the
+       same package but is not a compile/runtime dependency of the generator). -->
   <ItemGroup>
-    <!-- Package the generator in the analyzer directory of the nuget package -->
+    <ProjectReference Include="..\Aigamo.MatchGenerator.CodeFixes\Aigamo.MatchGenerator.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Package the generator and its code-fix provider in the analyzer directory of the nuget package -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="..\Aigamo.MatchGenerator.CodeFixes\bin\$(Configuration)\netstandard2.0\Aigamo.MatchGenerator.CodeFixes.dll"
+          Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
 
   <PropertyGroup>
