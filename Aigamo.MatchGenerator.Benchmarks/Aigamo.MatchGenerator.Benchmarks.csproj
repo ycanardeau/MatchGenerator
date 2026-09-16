@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<!-- BenchmarkDotNet requires an optimized (Release) build; fail fast if run under Debug. -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Reference the generator as an analyzer (no runtime dependency), the same way the
+		     ConsoleApp does, so the benchmarked Match methods are the ones this generator emits. -->
+		<ProjectReference
+			Include="..\Aigamo.MatchGenerator\Aigamo.MatchGenerator.csproj"
+			OutputItemType="Analyzer"
+			ReferenceOutputAssembly="false"
+		/>
+	</ItemGroup>
+</Project>

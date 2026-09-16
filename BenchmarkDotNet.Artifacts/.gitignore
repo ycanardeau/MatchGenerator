@@ -1,0 +1,3 @@
+# Ignore BenchmarkDotNet's generated output, but keep this folder in the repo.
+*
+!.gitignore

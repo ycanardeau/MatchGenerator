@@ -3,6 +3,7 @@
 		Path="Aigamo.MatchGenerator.ConsoleApp/Aigamo.MatchGenerator.ConsoleApp.csproj"
 		Id="b3f61da6-4537-4428-b99c-61bce11a97fd"
 	/>
+	<Project Path="Aigamo.MatchGenerator.Benchmarks/Aigamo.MatchGenerator.Benchmarks.csproj" />
 	<Project Path="Aigamo.MatchGenerator.CodeFixes/Aigamo.MatchGenerator.CodeFixes.csproj" />
 	<Project
 		Path="Aigamo.MatchGenerator.Tests/Aigamo.MatchGenerator.Tests.csproj"
