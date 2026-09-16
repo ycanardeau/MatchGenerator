@@ -49,14 +49,15 @@ public class MatchAnalyzerTests
 		}
 		""";
 
-	private static string CallSite(string call) => $$"""
-		{{Enum}}
+	private static string CallSite(string call) =>
+		$$"""
+			{{Enum}}
 
-		public static class Consumer
-		{
-			public static string Describe(Gender value) => value.{{call}};
-		}
-		""";
+			public static class Consumer
+			{
+				public static string Describe(Gender value) => value.{{call}};
+			}
+			""";
 
 	[Fact]
 	public void Reports_For_Each_Positional_Argument()

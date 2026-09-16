@@ -1,60 +1,71 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<!-- Do not include the generator as a lib dependency -->
+		<PackageProjectUrl>https://github.com/ycanardeau/MatchGenerator</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/ycanardeau/MatchGenerator</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
-    <PackageProjectUrl>https://github.com/ycanardeau/MatchGenerator</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/ycanardeau/MatchGenerator</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  </PropertyGroup>
+	<ItemGroup>
+		<!-- Analyzer release tracking for the diagnostics this generator reports (satisfies RS2008). -->
+		<AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+		<AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <!-- Analyzer release tracking for the diagnostics this generator reports (satisfies RS2008). -->
-    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
-    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
-  </ItemGroup>
-
-  <!-- Bootstrap: a previously published build of this generator runs as an analyzer on this project's own source,
+	<!-- Bootstrap: a previously published build of this generator runs as an analyzer on this project's own source,
        so MatchModel can use [GenerateMatch] instead of a hand-written Match extension. PackageDownload fetches the
        package without adding a dependency edge (a same-id PackageReference is rejected with NU1108 "cycle"). -->
-  <PropertyGroup>
-    <BootstrapVersion>0.0.0-preview019</BootstrapVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<BootstrapVersion>0.0.0-preview019</BootstrapVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageDownload Include="Aigamo.MatchGenerator" Version="[$(BootstrapVersion)]" />
-    <Analyzer Include="$(NuGetPackageRoot)aigamo.matchgenerator\$(BootstrapVersion)\analyzers\dotnet\cs\Aigamo.MatchGenerator.dll" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageDownload Include="Aigamo.MatchGenerator" Version="[$(BootstrapVersion)]" />
+		<Analyzer Include="$(NuGetPackageRoot)aigamo.matchgenerator\$(BootstrapVersion)\analyzers\dotnet\cs\Aigamo.MatchGenerator.dll" />
+	</ItemGroup>
 
-  <!-- Build the code-fix assembly alongside this one (ReferenceOutputAssembly=false: it ships in the
+	<!-- Build the code-fix assembly alongside this one (ReferenceOutputAssembly=false: it ships in the
        same package but is not a compile/runtime dependency of the generator). -->
-  <ItemGroup>
-    <ProjectReference Include="..\Aigamo.MatchGenerator.CodeFixes\Aigamo.MatchGenerator.CodeFixes.csproj"
-                      ReferenceOutputAssembly="false" PrivateAssets="all" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference
+			Include="..\Aigamo.MatchGenerator.CodeFixes\Aigamo.MatchGenerator.CodeFixes.csproj"
+			ReferenceOutputAssembly="false"
+			PrivateAssets="all"
+		/>
+	</ItemGroup>
 
-  <ItemGroup>
-    <!-- Package the generator and its code-fix provider in the analyzer directory of the nuget package -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="..\Aigamo.MatchGenerator.CodeFixes\bin\$(Configuration)\netstandard2.0\Aigamo.MatchGenerator.CodeFixes.dll"
-          Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
+	<ItemGroup>
+		<!-- Package the generator and its code-fix provider in the analyzer directory of the nuget package -->
+		<None
+			Include="$(OutputPath)\$(AssemblyName).dll"
+			Pack="true"
+			PackagePath="analyzers/dotnet/cs"
+			Visible="false"
+		/>
+		<None
+			Include="..\Aigamo.MatchGenerator.CodeFixes\bin\$(Configuration)\netstandard2.0\Aigamo.MatchGenerator.CodeFixes.dll"
+			Pack="true"
+			PackagePath="analyzers/dotnet/cs"
+			Visible="false"
+		/>
+	</ItemGroup>
 
-  <PropertyGroup>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="../README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
+	<ItemGroup>
+		<None Include="../README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 </Project>

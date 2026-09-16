@@ -19,7 +19,7 @@ public sealed class MatchClosedBaseTypeAnalyzer : DiagnosticAnalyzer
 	private const int FirstLanguageVersionWithClosed = 1500;
 
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-		[Diagnostics.MarkBaseTypeClosed];
+	[Diagnostics.MarkBaseTypeClosed];
 
 	private static bool SupportsClosed(Compilation compilation)
 	{
@@ -31,7 +31,8 @@ public sealed class MatchClosedBaseTypeAnalyzer : DiagnosticAnalyzer
 			return false;
 		}
 
-		return (int)options.LanguageVersion.MapSpecifiedToEffectiveVersion() >= FirstLanguageVersionWithClosed;
+		return (int)options.LanguageVersion.MapSpecifiedToEffectiveVersion()
+			>= FirstLanguageVersionWithClosed;
 	}
 
 	private static bool IsClosed(INamedTypeSymbol type)
@@ -40,8 +41,10 @@ public sealed class MatchClosedBaseTypeAnalyzer : DiagnosticAnalyzer
 		// `closed` keyword may not be a known SyntaxKind in the compiled-against Roslyn.
 		foreach (var reference in type.DeclaringSyntaxReferences)
 		{
-			if (reference.GetSyntax() is TypeDeclarationSyntax declaration &&
-				declaration.Modifiers.Any(m => m.ValueText == "closed"))
+			if (
+				reference.GetSyntax() is TypeDeclarationSyntax declaration
+				&& declaration.Modifiers.Any(m => m.ValueText == "closed")
+			)
 			{
 				return true;
 			}
@@ -61,7 +64,10 @@ public sealed class MatchClosedBaseTypeAnalyzer : DiagnosticAnalyzer
 			return;
 		}
 
-		if (!type.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attribute)))
+		if (
+			!type.GetAttributes()
+				.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attribute))
+		)
 		{
 			return;
 		}
@@ -71,11 +77,13 @@ public sealed class MatchClosedBaseTypeAnalyzer : DiagnosticAnalyzer
 			return;
 		}
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			Diagnostics.MarkBaseTypeClosed,
-			type.Locations.FirstOrDefault(),
-			type.Name
-		));
+		context.ReportDiagnostic(
+			Diagnostic.Create(
+				Diagnostics.MarkBaseTypeClosed,
+				type.Locations.FirstOrDefault(),
+				type.Name
+			)
+		);
 	}
 
 	public override void Initialize(AnalysisContext context)
@@ -87,7 +95,9 @@ public sealed class MatchClosedBaseTypeAnalyzer : DiagnosticAnalyzer
 		{
 			// The attribute is emitted by this generator; if it is absent nothing here is
 			// annotated. Resolving it once also gives an identity to compare against per type.
-			var attribute = start.Compilation.GetTypeByMetadataName("Aigamo.MatchGenerator.GenerateMatchAttribute");
+			var attribute = start.Compilation.GetTypeByMetadataName(
+				"Aigamo.MatchGenerator.GenerateMatchAttribute"
+			);
 			if (attribute is null || !SupportsClosed(start.Compilation))
 			{
 				return;

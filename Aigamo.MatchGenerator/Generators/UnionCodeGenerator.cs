@@ -8,10 +8,17 @@ internal static class UnionCodeGenerator
 {
 	private static void GenerateMatchMethod(StringBuilder sb, MatchModel.Union model)
 	{
-		sb.AppendLineLF($"\tpublic static U Match<{model.TypeParameters.ToMethodTypeParameterPrefix()}U>(");
+		sb.AppendLineLF(
+			$"\tpublic static U Match<{model.TypeParameters.ToMethodTypeParameterPrefix()}U>("
+		);
 		sb.AppendLineLF($"\t\tthis {model.TypeName} value,");
 
-		sb.AppendLineLF(string.Join(",\n", model.DerivedTypes.Select(x => $"\t\tFunc<{x.TypeName}, U> on{x.Name}")));
+		sb.AppendLineLF(
+			string.Join(
+				",\n",
+				model.DerivedTypes.Select(x => $"\t\tFunc<{x.TypeName}, U> on{x.Name}")
+			)
+		);
 
 		sb.AppendLineLF("\t)");
 		sb.AppendLineLF("\t{");
@@ -44,7 +51,9 @@ internal static class UnionCodeGenerator
 		}
 
 		sb.AppendLineLF();
-		sb.AppendLineLF($"{model.Accessibility} static class {model.Name}{Constants.MatchExtensionClassSuffix}");
+		sb.AppendLineLF(
+			$"{model.Accessibility} static class {model.Name}{Constants.MatchExtensionClassSuffix}"
+		);
 		sb.AppendLineLF("{");
 
 		GenerateMatchMethod(sb, model);

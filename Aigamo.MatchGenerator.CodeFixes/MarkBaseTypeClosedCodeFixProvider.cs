@@ -35,7 +35,9 @@ public sealed class MarkBaseTypeClosedCodeFixProvider : CodeFixProvider
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		var root = await context
+			.Document.GetSyntaxRootAsync(context.CancellationToken)
+			.ConfigureAwait(false);
 		if (root is null)
 		{
 			return;
@@ -44,8 +46,11 @@ public sealed class MarkBaseTypeClosedCodeFixProvider : CodeFixProvider
 		var diagnostic = context.Diagnostics[0];
 
 		// AMG003 is reported at the type's name identifier; walk up to the declaration.
-		if (root.FindNode(diagnostic.Location.SourceSpan).FirstAncestorOrSelf<TypeDeclarationSyntax>() is not
-			{ } declaration)
+		if (
+			root.FindNode(diagnostic.Location.SourceSpan)
+				.FirstAncestorOrSelf<TypeDeclarationSyntax>()
+			is not { } declaration
+		)
 		{
 			return;
 		}
@@ -53,7 +58,12 @@ public sealed class MarkBaseTypeClosedCodeFixProvider : CodeFixProvider
 		context.RegisterCodeFix(
 			CodeAction.Create(
 				Title,
-				_ => Task.FromResult(context.Document.WithSyntaxRoot(root.ReplaceNode(declaration, WithClosed(declaration)))),
+				_ =>
+					Task.FromResult(
+						context.Document.WithSyntaxRoot(
+							root.ReplaceNode(declaration, WithClosed(declaration))
+						)
+					),
 				equivalenceKey: DiagnosticId
 			),
 			diagnostic
@@ -65,10 +75,16 @@ public sealed class MarkBaseTypeClosedCodeFixProvider : CodeFixProvider
 		// A closed type is always implicitly abstract, so `abstract closed` is a compile error
 		// (CS9384). Replace an existing `abstract` in place rather than adding alongside it:
 		// `public abstract record` -> `public closed record`, keeping accessibility and layout.
-		var @abstract = declaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.AbstractKeyword));
+		var @abstract = declaration.Modifiers.FirstOrDefault(m =>
+			m.IsKind(SyntaxKind.AbstractKeyword)
+		);
 		if (@abstract.IsKind(SyntaxKind.AbstractKeyword))
 		{
-			var replacement = SyntaxFactory.Identifier(@abstract.LeadingTrivia, "closed", @abstract.TrailingTrivia);
+			var replacement = SyntaxFactory.Identifier(
+				@abstract.LeadingTrivia,
+				"closed",
+				@abstract.TrailingTrivia
+			);
 			return declaration.WithModifiers(declaration.Modifiers.Replace(@abstract, replacement));
 		}
 

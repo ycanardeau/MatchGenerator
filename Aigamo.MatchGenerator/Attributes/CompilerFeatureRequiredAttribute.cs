@@ -6,7 +6,6 @@ namespace System.Runtime.CompilerServices;
 [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
 public sealed class CompilerFeatureRequiredAttribute(string featureName) : Attribute
 {
-
 	/// <summary>
 	/// The name of the compiler feature.
 	/// </summary>

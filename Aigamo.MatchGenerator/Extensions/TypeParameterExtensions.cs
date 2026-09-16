@@ -11,8 +11,6 @@ internal static class TypeParameterExtensions
 	/// </summary>
 	public static string ToMethodTypeParameterPrefix(this string[] typeParameters)
 	{
-		return typeParameters.Length == 0
-			? ""
-			: string.Join(", ", typeParameters) + ", ";
+		return typeParameters.Length == 0 ? "" : string.Join(", ", typeParameters) + ", ";
 	}
 }

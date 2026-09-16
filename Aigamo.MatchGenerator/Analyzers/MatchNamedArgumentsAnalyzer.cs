@@ -14,7 +14,7 @@ namespace Aigamo.MatchGenerator.Analyzers;
 public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 {
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-		[Diagnostics.UseNamedArgumentsForMatch];
+	[Diagnostics.UseNamedArgumentsForMatch];
 
 	private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
 	{
@@ -24,7 +24,8 @@ public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 		// `FooMatchExtensions.Match(value, ...)` carries the receiver as a positional
 		// argument that is legitimately unnamed, so mapping args to cases is ambiguous
 		// there; skip it.
-		if (context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol
+		if (
+			context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol
 			is not IMethodSymbol
 			{
 				Name: "Match",
@@ -36,7 +37,12 @@ public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 			return;
 		}
 
-		if (!containingType.Name.EndsWith(Constants.MatchExtensionClassSuffix, StringComparison.Ordinal))
+		if (
+			!containingType.Name.EndsWith(
+				Constants.MatchExtensionClassSuffix,
+				StringComparison.Ordinal
+			)
+		)
 		{
 			return;
 		}
@@ -48,10 +54,9 @@ public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 		{
 			if (argument.NameColon is null)
 			{
-				context.ReportDiagnostic(Diagnostic.Create(
-					Diagnostics.UseNamedArgumentsForMatch,
-					argument.GetLocation()
-				));
+				context.ReportDiagnostic(
+					Diagnostic.Create(Diagnostics.UseNamedArgumentsForMatch, argument.GetLocation())
+				);
 			}
 		}
 	}

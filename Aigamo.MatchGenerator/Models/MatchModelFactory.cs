@@ -121,9 +121,7 @@ internal static class MatchModelFactory
 		{
 			var model = compilation.GetSemanticModel(tree);
 
-			var types = tree.GetRoot()
-				.DescendantNodes()
-				.OfType<TypeDeclarationSyntax>();
+			var types = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>();
 
 			foreach (var t in types)
 			{
@@ -138,16 +136,18 @@ internal static class MatchModelFactory
 		}
 	}
 
-	private static MatchModel.Union CreateUnionModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
+	private static MatchModel.Union CreateUnionModel(
+		INamedTypeSymbol type,
+		Compilation compilation,
+		string accessibility
+	)
 	{
 		// Preserve source-traversal order (syntax tree order, then declaration order
 		// within each tree) instead of sorting by name, mirroring the enum path so a
 		// newly added derived type tends to land at the end of the parameter list.
 		// Note: because derived types can be spread across files, this is less strictly
 		// append-stable than the enum case — named arguments remain the safe call style.
-		var derived = GetDerivedTypes(type, compilation)
-			.Where(x => !x.IsAbstract)
-			.ToList();
+		var derived = GetDerivedTypes(type, compilation).Where(x => !x.IsAbstract).ToList();
 
 		var baseName = type.Name;
 		var namespaceName = type.ContainingNamespace.IsGlobalNamespace
@@ -160,23 +160,35 @@ internal static class MatchModelFactory
 			Namespace: namespaceName,
 			Accessibility: accessibility,
 			TypeParameters: GetTypeParameters(type),
-			DerivedTypes: [.. derived.Select(x => new DerivedType(
-				Name: x.Name,
-				TypeName: x.ToDisplayString(s_typeNameFormat)
-			))]
+			DerivedTypes:
+			[
+				.. derived.Select(x => new DerivedType(
+					Name: x.Name,
+					TypeName: x.ToDisplayString(s_typeNameFormat)
+				)),
+			]
 		);
 	}
 
-	private static MatchModel CreateModel(INamedTypeSymbol type, Compilation compilation, string accessibility)
+	private static MatchModel CreateModel(
+		INamedTypeSymbol type,
+		Compilation compilation,
+		string accessibility
+	)
 	{
 		return type.TypeKind == TypeKind.Enum
 			? CreateEnumModel(type, accessibility)
 			: CreateUnionModel(type, compilation, accessibility);
 	}
 
-	public static IEnumerable<MatchModel> Create(Compilation compilation, ImmutableArray<INamedTypeSymbol> targets)
+	public static IEnumerable<MatchModel> Create(
+		Compilation compilation,
+		ImmutableArray<INamedTypeSymbol> targets
+	)
 	{
-		foreach (var type in targets.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>())
+		foreach (
+			var type in targets.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>()
+		)
 		{
 			yield return CreateModel(type, compilation, GetEffectiveAccessibility(type));
 		}

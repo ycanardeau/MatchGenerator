@@ -30,14 +30,27 @@ public class MatchCodeFixTests
 		using var workspace = new AdhocWorkspace();
 
 		var projectId = ProjectId.CreateNewId();
-		var solution = workspace.CurrentSolution
-			.AddProject(projectId, "Tests", "Tests", LanguageNames.CSharp)
+		var solution = workspace
+			.CurrentSolution.AddProject(projectId, "Tests", "Tests", LanguageNames.CSharp)
 			.WithProjectParseOptions(projectId, new CSharpParseOptions(LanguageVersion.Preview))
-			.WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-			.AddMetadataReference(projectId, MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-			.AddMetadataReference(projectId, MetadataReference.CreateFromFile(typeof(Func<>).Assembly.Location));
+			.WithProjectCompilationOptions(
+				projectId,
+				new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+			)
+			.AddMetadataReference(
+				projectId,
+				MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+			)
+			.AddMetadataReference(
+				projectId,
+				MetadataReference.CreateFromFile(typeof(Func<>).Assembly.Location)
+			);
 
-		solution = solution.AddDocument(DocumentId.CreateNewId(projectId), "GenerateMatchAttribute.cs", Attribute);
+		solution = solution.AddDocument(
+			DocumentId.CreateNewId(projectId),
+			"GenerateMatchAttribute.cs",
+			Attribute
+		);
 
 		var documentId = DocumentId.CreateNewId(projectId);
 		solution = solution.AddDocument(documentId, "Source.cs", source);
@@ -53,13 +66,30 @@ public class MatchCodeFixTests
 		var diagnostic = diagnostics.Single(d => d.Id == "AMG003");
 
 		var actions = ImmutableArray.CreateBuilder<CodeAction>();
-		var context = new CodeFixContext(document, diagnostic, (action, _) => actions.Add(action), CancellationToken.None);
-		new MarkBaseTypeClosedCodeFixProvider().RegisterCodeFixesAsync(context).GetAwaiter().GetResult();
+		var context = new CodeFixContext(
+			document,
+			diagnostic,
+			(action, _) => actions.Add(action),
+			CancellationToken.None
+		);
+		new MarkBaseTypeClosedCodeFixProvider()
+			.RegisterCodeFixesAsync(context)
+			.GetAwaiter()
+			.GetResult();
 
-		var operations = actions.Single().GetOperationsAsync(CancellationToken.None).GetAwaiter().GetResult();
+		var operations = actions
+			.Single()
+			.GetOperationsAsync(CancellationToken.None)
+			.GetAwaiter()
+			.GetResult();
 		var changedSolution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
 
-		return changedSolution.GetDocument(documentId)!.GetTextAsync().GetAwaiter().GetResult().ToString();
+		return changedSolution
+			.GetDocument(documentId)!
+			.GetTextAsync()
+			.GetAwaiter()
+			.GetResult()
+			.ToString();
 	}
 
 	[Fact]
