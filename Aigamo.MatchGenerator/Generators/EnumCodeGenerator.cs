@@ -14,6 +14,7 @@ internal static class EnumCodeGenerator
 
 		sb.AppendLineLF("using System;");
 		sb.AppendLineLF("using System.Diagnostics;");
+		sb.AppendLineLF("using System.Runtime.CompilerServices;");
 
 		if (model.Namespace is not null)
 		{
@@ -26,6 +27,7 @@ internal static class EnumCodeGenerator
 			$"{model.Accessibility} static class {model.Name}{Constants.MatchExtensionClassSuffix}"
 		);
 		sb.AppendLineLF("{");
+		sb.AppendLineLF("\t[MethodImpl(MethodImplOptions.AggressiveInlining)]");
 		sb.AppendLineLF(
 			$"\tpublic static U Match<{model.TypeParameters.ToMethodTypeParameterPrefix()}U>("
 		);

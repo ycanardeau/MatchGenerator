@@ -239,6 +239,35 @@ To enforce it, the package ships an analyzer (**AMG002**) that reports an error 
 dotnet_diagnostic.AMG002.severity = warning
 ```
 
+## Performance
+
+`Match` is a thin wrapper around a `switch`, and the generated method is marked
+`[MethodImpl(MethodImplOptions.AggressiveInlining)]` so the JIT can fold the dispatch into the
+call site. The only runtime cost worth thinking about is the `Func<>` callbacks:
+
+- **Prefer non-capturing (`static`) lambdas.** A lambda that captures no local state compiles to a
+  single cached delegate — zero allocation per call. Marking them `static` makes the compiler
+  enforce that:
+
+  ```csharp
+  var message = gender.Match(
+      onMale: static () => "male",
+      onFemale: static () => "female"
+  );
+  ```
+
+- **A capturing lambda allocates a closure per call.** `x => x + local` builds a new closure object
+  (and delegates) on every `Match` invocation. That is usually fine, but on a hot path it shows up.
+  Inlining lets the JIT's escape analysis stack-allocate most of it, but avoiding the capture is
+  strictly cheaper.
+
+The repository includes a [BenchmarkDotNet](https://benchmarkdotnet.org/) project
+(`Aigamo.MatchGenerator.Benchmarks`) that measures this. Run it with:
+
+```bash
+dotnet run -c Release --project Aigamo.MatchGenerator.Benchmarks
+```
+
 ## Generated Code (Example)
 
 ### Enum
@@ -246,6 +275,7 @@ dotnet_diagnostic.AMG002.severity = warning
 ```csharp
 internal static class GenderMatchExtensions
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<U>(
 		this Gender value,
 		Func<U> onMale,
@@ -267,6 +297,7 @@ internal static class GenderMatchExtensions
 ```csharp
 internal static class MaritalStatusMatchExtensions
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<U>(
 		this MaritalStatus value,
 		Func<MaritalStatus.Single, U> onSingle,
@@ -294,6 +325,7 @@ The base type's type parameters are declared on the method, ahead of the result 
 ```csharp
 internal static class OptionMatchExtensions
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<T, U>(
 		this Option<T> value,
 		Func<Option<T>.Some, U> onSome,
@@ -315,6 +347,7 @@ Multiple type parameters carry through in declaration order — `Either<L, R>` p
 ```csharp
 internal static class ListMatchExtensions
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<T, U>(
 		this List<T> value,
 		Func<List<T>.Empty, U> onEmpty,

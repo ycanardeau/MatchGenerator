@@ -8,6 +8,7 @@ internal static class UnionCodeGenerator
 {
 	private static void GenerateMatchMethod(StringBuilder sb, MatchModel.Union model)
 	{
+		sb.AppendLineLF("\t[MethodImpl(MethodImplOptions.AggressiveInlining)]");
 		sb.AppendLineLF(
 			$"\tpublic static U Match<{model.TypeParameters.ToMethodTypeParameterPrefix()}U>("
 		);
@@ -43,6 +44,7 @@ internal static class UnionCodeGenerator
 
 		sb.AppendLineLF("using System;");
 		sb.AppendLineLF("using System.Diagnostics;");
+		sb.AppendLineLF("using System.Runtime.CompilerServices;");
 
 		if (model.Namespace is not null)
 		{
