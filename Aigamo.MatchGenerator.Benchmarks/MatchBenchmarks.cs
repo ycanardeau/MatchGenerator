@@ -44,20 +44,20 @@ public class MatchBenchmarks
 
 	[Benchmark]
 	public string EnumMatch() =>
-		_color.Match(onRed: s_onRed, onGreen: s_onGreen, onBlue: s_onBlue);
+		_color.Match(Red: s_onRed, Green: s_onGreen, Blue: s_onBlue);
 
 	[Benchmark]
 	public double UnionMatch() =>
-		_shape.Match(onCircle: s_onCircle, onSquare: s_onSquare, onRectangle: s_onRectangle);
+		_shape.Match(Circle: s_onCircle, Square: s_onSquare, Rectangle: s_onRectangle);
 
 	// --- Allocation story: static (non-capturing) vs capturing lambdas at the call site ---
 
 	[Benchmark]
 	public string EnumMatch_StaticLambdas() =>
 		_color.Match(
-			onRed: static () => "red",
-			onGreen: static () => "green",
-			onBlue: static () => "blue"
+			Red: static () => "red",
+			Green: static () => "green",
+			Blue: static () => "blue"
 		);
 
 	[Benchmark]
@@ -66,9 +66,9 @@ public class MatchBenchmarks
 		// Capture a local so the compiler must allocate a fresh closure on every call.
 		var scale = _shape.GetHashCode() & 1;
 		return _shape.Match(
-			onCircle: c => c.Radius * scale,
-			onSquare: s => s.Side * scale,
-			onRectangle: r => r.Width * r.Height * scale
+			Circle: c => c.Radius * scale,
+			Square: s => s.Side * scale,
+			Rectangle: r => r.Width * r.Height * scale
 		);
 	}
 }

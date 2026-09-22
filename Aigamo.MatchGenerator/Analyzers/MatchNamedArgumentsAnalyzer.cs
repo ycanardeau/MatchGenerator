@@ -9,7 +9,7 @@ namespace Aigamo.MatchGenerator.Analyzers;
 // Reports AMG002 when a generated Match extension method is called with positional
 // arguments. Match parameters are emitted in declaration order, so a positional call
 // silently rebinds to the wrong case when a case is added, removed, or reordered.
-// Named arguments (onFoo:) are order-independent, hence the on-prefixed parameter names.
+// Named arguments (Foo:) are order-independent, hence the case-name-matching parameter names.
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MatchNamedArgumentsAnalyzer : DiagnosticAnalyzer
 {

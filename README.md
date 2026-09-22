@@ -123,13 +123,13 @@ Then call `Match` exactly as you would on an annotated type:
 
 ```csharp
 var label = today.Match(
-	onSunday: () => "Sun",
-	onMonday: () => "Mon",
-	onTuesday: () => "Tue",
-	onWednesday: () => "Wed",
-	onThursday: () => "Thu",
-	onFriday: () => "Fri",
-	onSaturday: () => "Sat"
+	Sunday: () => "Sun",
+	Monday: () => "Mon",
+	Tuesday: () => "Tue",
+	Wednesday: () => "Wed",
+	Thursday: () => "Thu",
+	Friday: () => "Fri",
+	Saturday: () => "Sat"
 );
 ```
 
@@ -143,8 +143,8 @@ If a target has nothing to match — it isn't an enum and has no derived types i
 
 ```csharp
 var message = gender.Match(
-	onMale: () => "male",
-	onFemale: () => "female"
+	Male: () => "male",
+	Female: () => "female"
 );
 ```
 
@@ -152,10 +152,10 @@ var message = gender.Match(
 
 ```csharp
 var message = maritalStatus.Match(
-	onSingle: x => "single",
-	onMarried: x => "married",
-	onDivorced: x => "divorced",
-	onWidowed: x => "widowed"
+	Single: x => "single",
+	Married: x => "married",
+	Divorced: x => "divorced",
+	Widowed: x => "widowed"
 );
 ```
 
@@ -191,8 +191,8 @@ var message = maritalStatus switch
 
 ```csharp
 var message = gender.Match(
-	onMale: () => "male",
-	onFemale: () => "female"
+	Male: () => "male",
+	Female: () => "female"
 );
 ```
 
@@ -233,13 +233,30 @@ Two caveats:
 - Inserting or reordering cases in the middle still shifts positions and can silently rebind positional arguments.
 - For unions, derived types can be spread across files, so "declaration order" is really source-traversal order and is less strictly append-stable.
 
-Because of this, prefer **named arguments** (`onSingle:`, `onMarried:`, …) — they are order-independent and the only fully safe call style across changes. The generated parameter names are designed for exactly this.
+Because of this, prefer **named arguments** (`Single:`, `Married:`, …) — they are order-independent and the only fully safe call style across changes. The generated parameter names are designed for exactly this.
 
 To enforce it, the package ships an analyzer (**AMG002**) that reports an error when `Match` is called with positional arguments. If you'd rather have it as a warning (or turn it off entirely), relax it in `.editorconfig`:
 
 ```ini
 dotnet_diagnostic.AMG002.severity = warning
 ```
+
+## Parameter Names
+
+By default, generated parameters are named after the case they handle (`Male`, `Single`, …). If you prefer the classic `onFoo` style, set a prefix in `.editorconfig`:
+
+```ini
+matchgenerator_parameter_prefix = on
+```
+
+```csharp
+var message = gender.Match(
+	onMale: () => "male",
+	onFemale: () => "female"
+);
+```
+
+The prefix applies project-wide and defaults to empty.
 
 ## Performance
 
@@ -253,8 +270,8 @@ call site. The only runtime cost worth thinking about is the `Func<>` callbacks:
 
   ```csharp
   var message = gender.Match(
-      onMale: static () => "male",
-      onFemale: static () => "female"
+      Male: static () => "male",
+      Female: static () => "female"
   );
   ```
 
@@ -280,14 +297,14 @@ internal static class GenderMatchExtensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<U>(
 		this Gender value,
-		Func<U> onMale,
-		Func<U> onFemale
+		Func<U> Male,
+		Func<U> Female
 	)
 	{
 		return value switch
 		{
-			Gender.Male => onMale(),
-			Gender.Female => onFemale(),
+			Gender.Male => Male(),
+			Gender.Female => Female(),
 			_ => throw new UnreachableException(),
 		};
 	}
@@ -302,18 +319,18 @@ internal static class MaritalStatusMatchExtensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<U>(
 		this MaritalStatus value,
-		Func<MaritalStatus.Single, U> onSingle,
-		Func<MaritalStatus.Married, U> onMarried,
-		Func<MaritalStatus.Divorced, U> onDivorced,
-		Func<MaritalStatus.Widowed, U> onWidowed
+		Func<MaritalStatus.Single, U> Single,
+		Func<MaritalStatus.Married, U> Married,
+		Func<MaritalStatus.Divorced, U> Divorced,
+		Func<MaritalStatus.Widowed, U> Widowed
 	)
 	{
 		return value switch
 		{
-			MaritalStatus.Single x => onSingle(x),
-			MaritalStatus.Married x => onMarried(x),
-			MaritalStatus.Divorced x => onDivorced(x),
-			MaritalStatus.Widowed x => onWidowed(x),
+			MaritalStatus.Single x => Single(x),
+			MaritalStatus.Married x => Married(x),
+			MaritalStatus.Divorced x => Divorced(x),
+			MaritalStatus.Widowed x => Widowed(x),
 			_ => throw new UnreachableException(),
 		};
 	}
@@ -330,14 +347,14 @@ internal static class OptionMatchExtensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<T, U>(
 		this Option<T> value,
-		Func<Option<T>.Some, U> onSome,
-		Func<Option<T>.None, U> onNone
+		Func<Option<T>.Some, U> Some,
+		Func<Option<T>.None, U> None
 	)
 	{
 		return value switch
 		{
-			Option<T>.Some x => onSome(x),
-			Option<T>.None x => onNone(x),
+			Option<T>.Some x => Some(x),
+			Option<T>.None x => None(x),
 			_ => throw new UnreachableException(),
 		};
 	}
@@ -352,14 +369,14 @@ internal static class ListMatchExtensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static U Match<T, U>(
 		this List<T> value,
-		Func<List<T>.Empty, U> onEmpty,
-		Func<List<T>.Cons, U> onCons
+		Func<List<T>.Empty, U> Empty,
+		Func<List<T>.Cons, U> Cons
 	)
 	{
 		return value switch
 		{
-			List<T>.Empty x => onEmpty(x),
-			List<T>.Cons x => onCons(x),
+			List<T>.Empty x => Empty(x),
+			List<T>.Cons x => Cons(x),
 			_ => throw new UnreachableException(),
 		};
 	}

@@ -3,12 +3,21 @@ using Aigamo.MatchGenerator.Generators;
 using Aigamo.MatchGenerator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Aigamo.MatchGenerator;
 
 [Generator]
 internal class SourceGenerator : IIncrementalGenerator
 {
+	// Empty by default (Red); set matchgenerator_parameter_prefix = on in .editorconfig for onRed.
+	private static string GetParameterPrefix(AnalyzerConfigOptionsProvider provider)
+	{
+		return provider.GlobalOptions.TryGetValue(Constants.ParameterPrefixOptionName, out var value)
+			? value
+			: "";
+	}
+
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		context.RegisterPostInitializationOutput(ctx =>
@@ -78,19 +87,25 @@ internal class SourceGenerator : IIncrementalGenerator
 
 		var compilationAndTargets = context
 			.CompilationProvider.Combine(targets.Collect())
-			.Combine(externalTargets.Collect());
+			.Combine(externalTargets.Collect())
+			.Combine(context.AnalyzerConfigOptionsProvider);
 
 		context.RegisterSourceOutput(
 			compilationAndTargets,
 			static (spc, source) =>
 			{
-				var ((compilation, ownedTypes), externalGroups) = source;
+				var (((compilation, ownedTypes), externalGroups), configOptions) = source;
+
+				var parameterPrefix = GetParameterPrefix(configOptions);
 
 				var produced = new HashSet<string>();
 
 				foreach (var model in MatchModelFactory.Create(compilation, ownedTypes))
 				{
-					spc.AddSource(model.HintName, MatchCodeGenerator.Generate(model));
+					spc.AddSource(
+						model.HintName,
+						MatchCodeGenerator.Generate(model, parameterPrefix)
+					);
 					produced.Add(model.HintName);
 				}
 
@@ -117,7 +132,10 @@ internal class SourceGenerator : IIncrementalGenerator
 					// Skip if an annotated type (or an earlier target) already produced this file.
 					if (produced.Add(model.HintName))
 					{
-						spc.AddSource(model.HintName, MatchCodeGenerator.Generate(model));
+						spc.AddSource(
+							model.HintName,
+							MatchCodeGenerator.Generate(model, parameterPrefix)
+						);
 					}
 				}
 			}

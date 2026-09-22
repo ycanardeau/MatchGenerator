@@ -4,11 +4,11 @@ namespace Aigamo.MatchGenerator.Generators;
 
 internal static class MatchCodeGenerator
 {
-	public static string Generate(MatchModel model)
+	public static string Generate(MatchModel model, string parameterPrefix)
 	{
 		return model.Match(
-			onEnum: x => EnumCodeGenerator.Generate(x),
-			onUnion: x => UnionCodeGenerator.Generate(x)
+			onEnum: x => EnumCodeGenerator.Generate(x, parameterPrefix),
+			onUnion: x => UnionCodeGenerator.Generate(x, parameterPrefix)
 		);
 	}
 }

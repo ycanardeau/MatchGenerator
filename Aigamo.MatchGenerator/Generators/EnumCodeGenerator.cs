@@ -6,7 +6,7 @@ namespace Aigamo.MatchGenerator.Generators;
 
 internal static class EnumCodeGenerator
 {
-	public static string Generate(MatchModel.Enum model)
+	public static string Generate(MatchModel.Enum model, string parameterPrefix)
 	{
 		var sb = new StringBuilder();
 
@@ -33,7 +33,9 @@ internal static class EnumCodeGenerator
 		);
 		sb.AppendLineLF($"\t\tthis {model.TypeName} value,");
 
-		sb.AppendLineLF(string.Join(",\n", model.Members.Select(x => $"\t\tFunc<U> on{x}")));
+		sb.AppendLineLF(
+			string.Join(",\n", model.Members.Select(x => $"\t\tFunc<U> {parameterPrefix}{x}"))
+		);
 
 		sb.AppendLineLF("\t)");
 		sb.AppendLineLF("\t{");
@@ -42,7 +44,7 @@ internal static class EnumCodeGenerator
 
 		foreach (var member in model.Members)
 		{
-			sb.AppendLineLF($"\t\t\t{model.TypeName}.{member} => on{member}(),");
+			sb.AppendLineLF($"\t\t\t{model.TypeName}.{member} => {parameterPrefix}{member}(),");
 		}
 
 		sb.AppendLineLF("\t\t\t_ => throw new UnreachableException(),");

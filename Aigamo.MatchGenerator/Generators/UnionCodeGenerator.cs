@@ -6,7 +6,11 @@ namespace Aigamo.MatchGenerator.Generators;
 
 internal static class UnionCodeGenerator
 {
-	private static void GenerateMatchMethod(StringBuilder sb, MatchModel.Union model)
+	private static void GenerateMatchMethod(
+		StringBuilder sb,
+		MatchModel.Union model,
+		string parameterPrefix
+	)
 	{
 		sb.AppendLineLF("\t[MethodImpl(MethodImplOptions.AggressiveInlining)]");
 		sb.AppendLineLF(
@@ -17,7 +21,9 @@ internal static class UnionCodeGenerator
 		sb.AppendLineLF(
 			string.Join(
 				",\n",
-				model.DerivedTypes.Select(x => $"\t\tFunc<{x.TypeName}, U> on{x.Name}")
+				model.DerivedTypes.Select(x =>
+					$"\t\tFunc<{x.TypeName}, U> {parameterPrefix}{x.Name}"
+				)
 			)
 		);
 
@@ -28,7 +34,7 @@ internal static class UnionCodeGenerator
 
 		foreach (var d in model.DerivedTypes)
 		{
-			sb.AppendLineLF($"\t\t\t{d.TypeName} x => on{d.Name}(x),");
+			sb.AppendLineLF($"\t\t\t{d.TypeName} x => {parameterPrefix}{d.Name}(x),");
 		}
 
 		sb.AppendLineLF("\t\t\t_ => throw new UnreachableException(),");
@@ -36,7 +42,7 @@ internal static class UnionCodeGenerator
 		sb.AppendLineLF("\t}");
 	}
 
-	public static string Generate(MatchModel.Union model)
+	public static string Generate(MatchModel.Union model, string parameterPrefix)
 	{
 		var sb = new StringBuilder();
 
@@ -58,7 +64,7 @@ internal static class UnionCodeGenerator
 		);
 		sb.AppendLineLF("{");
 
-		GenerateMatchMethod(sb, model);
+		GenerateMatchMethod(sb, model, parameterPrefix);
 
 		sb.AppendLineLF("}");
 

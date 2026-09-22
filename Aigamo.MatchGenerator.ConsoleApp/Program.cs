@@ -30,8 +30,8 @@ class Program
 		var gender = Gender.Male;
 
 		var x = gender.Match(
-			onMale: () => "male",
-			onFemale: () => "female"
+			Male: () => "male",
+			Female: () => "female"
 		);
 
 		Console.WriteLine(x);
@@ -39,10 +39,10 @@ class Program
 		var maritalStatus = new MaritalStatus.Single();
 
 		var y = maritalStatus.Match(
-			onSingle: x => "single",
-			onMarried: x => "married",
-			onDivorced: x => "divorced",
-			onWidowed: x => "widowed"
+			Single: x => "single",
+			Married: x => "married",
+			Divorced: x => "divorced",
+			Widowed: x => "widowed"
 		);
 
 		Console.WriteLine(y);
@@ -50,13 +50,13 @@ class Program
 		var day = DayOfWeek.Monday;
 
 		var z = day.Match(
-			onSunday: () => "sunday",
-			onMonday: () => "monday",
-			onTuesday: () => "tuesday",
-			onWednesday: () => "wednesday",
-			onThursday: () => "thursday",
-			onFriday: () => "friday",
-			onSaturday: () => "saturday"
+			Sunday: () => "sunday",
+			Monday: () => "monday",
+			Tuesday: () => "tuesday",
+			Wednesday: () => "wednesday",
+			Thursday: () => "thursday",
+			Friday: () => "friday",
+			Saturday: () => "saturday"
 		);
 
 		Console.WriteLine(z);

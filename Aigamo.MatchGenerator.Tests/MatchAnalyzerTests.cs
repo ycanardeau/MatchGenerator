@@ -72,7 +72,7 @@ public class MatchAnalyzerTests
 	[Fact]
 	public void Does_Not_Report_When_All_Arguments_Named()
 	{
-		var source = CallSite("""Match(onMale: () => "m", onFemale: () => "f")""");
+		var source = CallSite("""Match(Male: () => "m", Female: () => "f")""");
 
 		var diagnostics = Analyze(source);
 
@@ -82,7 +82,7 @@ public class MatchAnalyzerTests
 	[Fact]
 	public void Reports_Only_The_Positional_Argument_In_A_Mixed_Call()
 	{
-		var source = CallSite("""Match(onMale: () => "m", () => "f")""");
+		var source = CallSite("""Match(Male: () => "m", () => "f")""");
 
 		var diagnostics = Analyze(source);
 
