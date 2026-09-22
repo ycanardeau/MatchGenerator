@@ -67,6 +67,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -80,6 +81,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Gender.Male => onMale(),
+						Gender.Female => onFemale(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Gender> value,
+					Func<U> onMale,
+					Func<U> onFemale
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Gender.Male => onMale(),
 						Gender.Female => onFemale(),
@@ -117,6 +132,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			public static class GenderMatchExtensions
 			{
@@ -128,6 +144,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Gender.Male => onMale(),
+						Gender.Female => onFemale(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Gender> value,
+					Func<U> onMale,
+					Func<U> onFemale
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Gender.Male => onMale(),
 						Gender.Female => onFemale(),
@@ -165,6 +195,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -178,6 +209,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Gender.Male => onMale(),
+						Gender.Female => onFemale(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Gender> value,
+					Func<U> onMale,
+					Func<U> onFemale
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Gender.Male => onMale(),
 						Gender.Female => onFemale(),
@@ -215,6 +260,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -228,6 +274,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Gender.Male => onMale(),
+						Gender.Female => onFemale(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Gender> value,
+					Func<U> onMale,
+					Func<U> onFemale
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Gender.Male => onMale(),
 						Gender.Female => onFemale(),
@@ -268,6 +328,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -281,6 +342,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Container.Gender.Male => onMale(),
+						Container.Gender.Female => onFemale(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Container.Gender> value,
+					Func<U> onMale,
+					Func<U> onFemale
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Container.Gender.Male => onMale(),
 						Container.Gender.Female => onFemale(),
@@ -342,6 +417,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -356,6 +432,22 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Color.Red => onRed(),
+						Color.Green => onGreen(),
+						Color.Blue => onBlue(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Color> value,
+					Func<U> onRed,
+					Func<U> onGreen,
+					Func<U> onBlue
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Color.Red => onRed(),
 						Color.Green => onGreen(),
@@ -399,6 +491,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -414,6 +507,24 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Visibility.None => onNone(),
+						Visibility.Private => onPrivate(),
+						Visibility.Internal => onInternal(),
+						Visibility.Public => onPublic(),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Visibility> value,
+					Func<U> onNone,
+					Func<U> onPrivate,
+					Func<U> onInternal,
+					Func<U> onPublic
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Visibility.None => onNone(),
 						Visibility.Private => onPrivate(),
@@ -472,6 +583,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -487,6 +599,24 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Single x => onSingle(x),
+						Married x => onMarried(x),
+						Divorced x => onDivorced(x),
+						Widowed x => onWidowed(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<MaritalStatus> value,
+					Func<Single, U> onSingle,
+					Func<Married, U> onMarried,
+					Func<Divorced, U> onDivorced,
+					Func<Widowed, U> onWidowed
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Single x => onSingle(x),
 						Married x => onMarried(x),
@@ -524,6 +654,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			internal static class MaritalStatusMatchExtensions
 			{
@@ -537,6 +668,24 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Single x => onSingle(x),
+						Married x => onMarried(x),
+						Divorced x => onDivorced(x),
+						Widowed x => onWidowed(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<MaritalStatus> value,
+					Func<Single, U> onSingle,
+					Func<Married, U> onMarried,
+					Func<Divorced, U> onDivorced,
+					Func<Widowed, U> onWidowed
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Single x => onSingle(x),
 						Married x => onMarried(x),
@@ -579,6 +728,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -594,6 +744,24 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						MaritalStatus.Single x => onSingle(x),
+						MaritalStatus.Married x => onMarried(x),
+						MaritalStatus.Divorced x => onDivorced(x),
+						MaritalStatus.Widowed x => onWidowed(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<MaritalStatus> value,
+					Func<MaritalStatus.Single, U> onSingle,
+					Func<MaritalStatus.Married, U> onMarried,
+					Func<MaritalStatus.Divorced, U> onDivorced,
+					Func<MaritalStatus.Widowed, U> onWidowed
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						MaritalStatus.Single x => onSingle(x),
 						MaritalStatus.Married x => onMarried(x),
@@ -633,6 +801,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -648,6 +817,24 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Single x => onSingle(x),
+						Married x => onMarried(x),
+						Divorced x => onDivorced(x),
+						Widowed x => onWidowed(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<MaritalStatus> value,
+					Func<Single, U> onSingle,
+					Func<Married, U> onMarried,
+					Func<Divorced, U> onDivorced,
+					Func<Widowed, U> onWidowed
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Single x => onSingle(x),
 						Married x => onMarried(x),
@@ -690,6 +877,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -705,6 +893,24 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Container.Single x => onSingle(x),
+						Container.Married x => onMarried(x),
+						Container.Divorced x => onDivorced(x),
+						Container.Widowed x => onWidowed(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<U>(
+					this Task<Container.MaritalStatus> value,
+					Func<Container.Single, U> onSingle,
+					Func<Container.Married, U> onMarried,
+					Func<Container.Divorced, U> onDivorced,
+					Func<Container.Widowed, U> onWidowed
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Container.Single x => onSingle(x),
 						Container.Married x => onMarried(x),
@@ -745,6 +951,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -758,6 +965,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Option<T>.Some x => onSome(x),
+						Option<T>.None x => onNone(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<T, U>(
+					this Task<Option<T>> value,
+					Func<Option<T>.Some, U> onSome,
+					Func<Option<T>.None, U> onNone
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Option<T>.Some x => onSome(x),
 						Option<T>.None x => onNone(x),
@@ -796,6 +1017,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -809,6 +1031,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						List<T>.Empty x => onEmpty(x),
+						List<T>.Cons x => onCons(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<T, U>(
+					this Task<List<T>> value,
+					Func<List<T>.Empty, U> onEmpty,
+					Func<List<T>.Cons, U> onCons
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						List<T>.Empty x => onEmpty(x),
 						List<T>.Cons x => onCons(x),
@@ -847,6 +1083,7 @@ public enum Gender
 			using System;
 			using System.Diagnostics;
 			using System.Runtime.CompilerServices;
+			using System.Threading.Tasks;
 
 			namespace Test;
 
@@ -860,6 +1097,20 @@ public enum Gender
 				)
 				{
 					return value switch
+					{
+						Either<L, R>.Left x => onLeft(x),
+						Either<L, R>.Right x => onRight(x),
+						_ => throw new UnreachableException(),
+					};
+				}
+
+				public static async Task<U> Match<L, R, U>(
+					this Task<Either<L, R>> value,
+					Func<Either<L, R>.Left, U> onLeft,
+					Func<Either<L, R>.Right, U> onRight
+				)
+				{
+					return (await value.ConfigureAwait(false)) switch
 					{
 						Either<L, R>.Left x => onLeft(x),
 						Either<L, R>.Right x => onRight(x),

@@ -36,6 +36,35 @@ internal static class UnionCodeGenerator
 		sb.AppendLineLF("\t}");
 	}
 
+	private static void GenerateMatchAsyncMethod(StringBuilder sb, MatchModel.Union model)
+	{
+		sb.AppendLineLF(
+			$"\tpublic static async Task<U> Match<{model.TypeParameters.ToMethodTypeParameterPrefix()}U>("
+		);
+		sb.AppendLineLF($"\t\tthis Task<{model.TypeName}> value,");
+
+		sb.AppendLineLF(
+			string.Join(
+				",\n",
+				model.DerivedTypes.Select(x => $"\t\tFunc<{x.TypeName}, U> on{x.Name}")
+			)
+		);
+
+		sb.AppendLineLF("\t)");
+		sb.AppendLineLF("\t{");
+		sb.AppendLineLF("\t\treturn (await value.ConfigureAwait(false)) switch");
+		sb.AppendLineLF("\t\t{");
+
+		foreach (var d in model.DerivedTypes)
+		{
+			sb.AppendLineLF($"\t\t\t{d.TypeName} x => on{d.Name}(x),");
+		}
+
+		sb.AppendLineLF("\t\t\t_ => throw new UnreachableException(),");
+		sb.AppendLineLF("\t\t};");
+		sb.AppendLineLF("\t}");
+	}
+
 	public static string Generate(MatchModel.Union model)
 	{
 		var sb = new StringBuilder();
@@ -45,6 +74,7 @@ internal static class UnionCodeGenerator
 		sb.AppendLineLF("using System;");
 		sb.AppendLineLF("using System.Diagnostics;");
 		sb.AppendLineLF("using System.Runtime.CompilerServices;");
+		sb.AppendLineLF("using System.Threading.Tasks;");
 
 		if (model.Namespace is not null)
 		{
@@ -59,6 +89,8 @@ internal static class UnionCodeGenerator
 		sb.AppendLineLF("{");
 
 		GenerateMatchMethod(sb, model);
+		sb.AppendLineLF();
+		GenerateMatchAsyncMethod(sb, model);
 
 		sb.AppendLineLF("}");
 
