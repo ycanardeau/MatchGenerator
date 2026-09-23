@@ -27,7 +27,7 @@
        so MatchModel can use [GenerateMatch] instead of a hand-written Match extension. PackageDownload fetches the
        package without adding a dependency edge (a same-id PackageReference is rejected with NU1108 "cycle"). -->
 	<PropertyGroup>
-		<BootstrapVersion>0.0.0-preview024</BootstrapVersion>
+		<BootstrapVersion>0.0.0-preview025</BootstrapVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
