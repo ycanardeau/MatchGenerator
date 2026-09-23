@@ -32,4 +32,14 @@ internal static class Diagnostics
 		isEnabledByDefault: true,
 		description: "A [GenerateMatch] base type whose hierarchy is open can gain a derived type the generated Match does not handle, silently losing exhaustiveness. The C# 15 'closed' modifier constrains the hierarchy so every case is known at compile time."
 	);
+
+	public static readonly DiagnosticDescriptor InvalidParameterPrefix = new(
+		id: "AMG004",
+		title: "Invalid MatchGeneratorParameterPrefix",
+		messageFormat: "MatchGeneratorParameterPrefix '{0}' is not a valid C# identifier; no prefix was applied",
+		category: "Usage",
+		defaultSeverity: DiagnosticSeverity.Error,
+		isEnabledByDefault: true,
+		description: "MatchGeneratorParameterPrefix is spliced directly into generated parameter names, so it must be a valid C# identifier (or empty) on its own. Falling back to no prefix silently would leave call sites written for the configured prefix failing with unrelated-looking errors, so this is an error by default rather than a warning that's easy to miss."
+	);
 }

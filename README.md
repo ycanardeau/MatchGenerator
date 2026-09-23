@@ -258,7 +258,7 @@ var message = gender.Match(
 );
 ```
 
-The prefix applies project-wide and defaults to empty.
+The prefix applies project-wide and defaults to empty. Since it's spliced directly into generated parameter names, it must be a valid C# identifier on its own; an invalid value (stray braces, a comment marker, …) is rejected as an error (**AMG004**) rather than silently falling back to no prefix, since that fallback would otherwise surface as unrelated-looking errors at call sites written for the configured prefix.
 
 ## Performance
 

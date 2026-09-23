@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Aigamo.MatchGenerator.Generators;
 using Aigamo.MatchGenerator.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -23,6 +24,26 @@ internal class SourceGenerator : IIncrementalGenerator
 		)
 			? value
 			: "";
+	}
+
+	// The prefix is spliced directly into generated parameter names, so anything other than
+	// a valid C# identifier (e.g. stray braces or a comment marker) could produce malformed
+	// or unsafe generated code. Reject it instead and fall back to no prefix, rather than
+	// skipping generation entirely: skipping would replace one clear AMG004 diagnostic with
+	// a CS1061 "Match not found" at every call site, none of which point back to the actual
+	// cause. Falling back keeps the method usable (IDE, IntelliSense) while AMG004's Error
+	// severity still fails the build.
+	private static string GetValidatedParameterPrefix(string prefix, SourceProductionContext spc)
+	{
+		if (prefix.Length == 0 || SyntaxFacts.IsValidIdentifier(prefix))
+		{
+			return prefix;
+		}
+
+		spc.ReportDiagnostic(
+			Diagnostic.Create(Diagnostics.InvalidParameterPrefix, Location.None, prefix)
+		);
+		return "";
 	}
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -103,7 +124,10 @@ internal class SourceGenerator : IIncrementalGenerator
 			{
 				var (((compilation, ownedTypes), externalGroups), configOptions) = source;
 
-				var parameterPrefix = GetParameterPrefix(configOptions);
+				var parameterPrefix = GetValidatedParameterPrefix(
+					GetParameterPrefix(configOptions),
+					spc
+				);
 
 				var produced = new HashSet<string>();
 

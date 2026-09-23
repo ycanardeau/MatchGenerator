@@ -8,3 +8,4 @@ Rule ID | Category | Severity | Notes
 AMG001  | Usage    | Warning  | GenerateMatchFor target has no cases
 AMG002  | Usage    | Error    | Use named arguments when calling Match
 AMG003  | Usage    | Warning  | Mark the Match base type as closed
+AMG004  | Usage    | Error    | Invalid MatchGeneratorParameterPrefix
