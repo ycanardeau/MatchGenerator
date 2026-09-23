@@ -13,15 +13,18 @@ public class EnumMatchGeneratorTests
 			options.TryGetValue(key, out value!);
 	}
 
-	private sealed class TestAnalyzerConfigOptionsProvider(AnalyzerConfigOptions globalOptions)
+	// Mirrors a section-scoped .editorconfig entry (e.g. under [*.cs]): visible per-tree,
+	// not via GlobalOptions. This is the shape that exposed the real bug — the generator
+	// originally only checked GlobalOptions, so a [*.cs]-scoped setting was silently ignored.
+	private sealed class TestAnalyzerConfigOptionsProvider(AnalyzerConfigOptions treeOptions)
 		: AnalyzerConfigOptionsProvider
 	{
-		public override AnalyzerConfigOptions GlobalOptions { get; } = globalOptions;
+		public override AnalyzerConfigOptions GlobalOptions { get; } =
+			new TestAnalyzerConfigOptions([]);
 
-		public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
+		public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => treeOptions;
 
-		public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) =>
-			GlobalOptions;
+		public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => treeOptions;
 	}
 
 	private static GeneratorDriverRunResult Run(string source, string? parameterPrefix = null)

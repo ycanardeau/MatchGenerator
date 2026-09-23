@@ -11,10 +11,26 @@ namespace Aigamo.MatchGenerator;
 internal class SourceGenerator : IIncrementalGenerator
 {
 	// Empty by default (Red); set matchgenerator_parameter_prefix = on in .editorconfig for onRed.
-	private static string GetParameterPrefix(AnalyzerConfigOptionsProvider provider)
+	// A section-scoped entry (e.g. under [*.cs]) is only visible per-tree, not via GlobalOptions,
+	// so check the compilation's trees first and fall back to GlobalOptions for a .globalconfig
+	// or an MSBuild-property-backed (CompilerVisibleProperty) setting.
+	private static string GetParameterPrefix(
+		Compilation compilation,
+		AnalyzerConfigOptionsProvider provider
+	)
 	{
-		return provider.GlobalOptions.TryGetValue(Constants.ParameterPrefixOptionName, out var value)
-			? value
+		foreach (var tree in compilation.SyntaxTrees)
+		{
+			if (
+				provider.GetOptions(tree).TryGetValue(Constants.ParameterPrefixOptionName, out var value)
+			)
+			{
+				return value;
+			}
+		}
+
+		return provider.GlobalOptions.TryGetValue(Constants.ParameterPrefixOptionName, out var v)
+			? v
 			: "";
 	}
 
@@ -96,7 +112,7 @@ internal class SourceGenerator : IIncrementalGenerator
 			{
 				var (((compilation, ownedTypes), externalGroups), configOptions) = source;
 
-				var parameterPrefix = GetParameterPrefix(configOptions);
+				var parameterPrefix = GetParameterPrefix(compilation, configOptions);
 
 				var produced = new HashSet<string>();
 
