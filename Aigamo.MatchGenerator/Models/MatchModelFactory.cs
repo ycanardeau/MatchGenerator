@@ -41,13 +41,13 @@ internal static class MatchModelFactory
 	private static string ToCode(Accessibility accessibility)
 	{
 		return accessibility.Match(
-			onInternal: () => "internal",
-			onNotApplicable: () => "internal",
-			onPrivate: () => "private",
-			onProtected: () => "protected",
-			onProtectedAndInternal: () => "private protected",
-			onProtectedOrInternal: () => "protected internal",
-			onPublic: () => "public"
+			Internal: () => "internal",
+			NotApplicable: () => "internal",
+			Private: () => "private",
+			Protected: () => "protected",
+			ProtectedAndInternal: () => "private protected",
+			ProtectedOrInternal: () => "protected internal",
+			Public: () => "public"
 		);
 	}
 
