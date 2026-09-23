@@ -243,10 +243,12 @@ dotnet_diagnostic.AMG002.severity = warning
 
 ## Parameter Names
 
-By default, generated parameters are named after the case they handle (`Male`, `Single`, …). If you prefer the classic `onFoo` style, set a prefix in `.editorconfig`:
+By default, generated parameters are named after the case they handle (`Male`, `Single`, …). If you prefer the classic `onFoo` style, set an MSBuild property in your `.csproj` (or `Directory.Build.props`):
 
-```ini
-matchgenerator_parameter_prefix = on
+```xml
+<PropertyGroup>
+	<MatchGeneratorParameterPrefix>on</MatchGeneratorParameterPrefix>
+</PropertyGroup>
 ```
 
 ```csharp

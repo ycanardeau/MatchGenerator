@@ -1,0 +1,7 @@
+<Project>
+	<ItemGroup>
+		<!-- Surfaces MatchGeneratorParameterPrefix (set in the consumer's .csproj or Directory.Build.props)
+		     to the generator as build_property.MatchGeneratorParameterPrefix via GlobalOptions. -->
+		<CompilerVisibleProperty Include="MatchGeneratorParameterPrefix" />
+	</ItemGroup>
+</Project>

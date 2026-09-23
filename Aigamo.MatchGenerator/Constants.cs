@@ -4,6 +4,8 @@ internal static class Constants
 {
 	public const string MatchExtensionClassSuffix = "MatchExtensions";
 
-	// .editorconfig key for the parameter name prefix (empty by default, e.g. "on" for onRed).
-	public const string ParameterPrefixOptionName = "matchgenerator_parameter_prefix";
+	// MSBuild property name for the parameter name prefix (empty by default, e.g. "on" for onRed).
+	// Flows into AnalyzerConfigOptionsProvider.GlobalOptions as build_property.<name> via
+	// CompilerVisibleProperty, declared in buildTransitive/Aigamo.MatchGenerator.props.
+	public const string ParameterPrefixPropertyName = "MatchGeneratorParameterPrefix";
 }

@@ -10,27 +10,18 @@ namespace Aigamo.MatchGenerator;
 [Generator]
 internal class SourceGenerator : IIncrementalGenerator
 {
-	// Empty by default (Red); set matchgenerator_parameter_prefix = on in .editorconfig for onRed.
-	// A section-scoped entry (e.g. under [*.cs]) is only visible per-tree, not via GlobalOptions,
-	// so check the compilation's trees first and fall back to GlobalOptions for a .globalconfig
-	// or an MSBuild-property-backed (CompilerVisibleProperty) setting.
-	private static string GetParameterPrefix(
-		Compilation compilation,
-		AnalyzerConfigOptionsProvider provider
-	)
+	// Empty by default (Red); set <MatchGeneratorParameterPrefix>on</MatchGeneratorParameterPrefix>
+	// in the consumer's .csproj (or Directory.Build.props) for onRed. Declared as a
+	// CompilerVisibleProperty in buildTransitive/Aigamo.MatchGenerator.props, which flows the
+	// MSBuild property into GlobalOptions as build_property.<name> — genuinely one value for the
+	// whole compilation, unlike a section-scoped .editorconfig entry.
+	private static string GetParameterPrefix(AnalyzerConfigOptionsProvider provider)
 	{
-		foreach (var tree in compilation.SyntaxTrees)
-		{
-			if (
-				provider.GetOptions(tree).TryGetValue(Constants.ParameterPrefixOptionName, out var value)
-			)
-			{
-				return value;
-			}
-		}
-
-		return provider.GlobalOptions.TryGetValue(Constants.ParameterPrefixOptionName, out var v)
-			? v
+		return provider.GlobalOptions.TryGetValue(
+			$"build_property.{Constants.ParameterPrefixPropertyName}",
+			out var value
+		)
+			? value
 			: "";
 	}
 
@@ -112,7 +103,7 @@ internal class SourceGenerator : IIncrementalGenerator
 			{
 				var (((compilation, ownedTypes), externalGroups), configOptions) = source;
 
-				var parameterPrefix = GetParameterPrefix(compilation, configOptions);
+				var parameterPrefix = GetParameterPrefix(configOptions);
 
 				var produced = new HashSet<string>();
 

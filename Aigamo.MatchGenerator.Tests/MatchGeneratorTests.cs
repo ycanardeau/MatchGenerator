@@ -13,18 +13,18 @@ public class EnumMatchGeneratorTests
 			options.TryGetValue(key, out value!);
 	}
 
-	// Mirrors a section-scoped .editorconfig entry (e.g. under [*.cs]): visible per-tree,
-	// not via GlobalOptions. This is the shape that exposed the real bug — the generator
-	// originally only checked GlobalOptions, so a [*.cs]-scoped setting was silently ignored.
-	private sealed class TestAnalyzerConfigOptionsProvider(AnalyzerConfigOptions treeOptions)
+	// Mirrors how MatchGeneratorParameterPrefix actually reaches the generator: as an MSBuild
+	// property surfaced via CompilerVisibleProperty, which lands in GlobalOptions as
+	// build_property.<name> — genuinely global, no per-tree lookup involved.
+	private sealed class TestAnalyzerConfigOptionsProvider(AnalyzerConfigOptions globalOptions)
 		: AnalyzerConfigOptionsProvider
 	{
-		public override AnalyzerConfigOptions GlobalOptions { get; } =
-			new TestAnalyzerConfigOptions([]);
+		public override AnalyzerConfigOptions GlobalOptions { get; } = globalOptions;
 
-		public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => treeOptions;
+		public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
 
-		public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => treeOptions;
+		public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) =>
+			GlobalOptions;
 	}
 
 	private static GeneratorDriverRunResult Run(string source, string? parameterPrefix = null)
@@ -51,7 +51,7 @@ public class EnumMatchGeneratorTests
 					new TestAnalyzerConfigOptions(
 						new Dictionary<string, string>
 						{
-							["matchgenerator_parameter_prefix"] = parameterPrefix,
+							["build_property.MatchGeneratorParameterPrefix"] = parameterPrefix,
 						}
 					)
 				)

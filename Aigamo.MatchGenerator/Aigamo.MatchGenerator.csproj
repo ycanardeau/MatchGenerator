@@ -59,6 +59,13 @@
 			PackagePath="analyzers/dotnet/cs"
 			Visible="false"
 		/>
+		<!-- Declares MatchGeneratorParameterPrefix as a CompilerVisibleProperty for consumers. -->
+		<None
+			Include="buildTransitive\Aigamo.MatchGenerator.props"
+			Pack="true"
+			PackagePath="buildTransitive"
+			Visible="false"
+		/>
 	</ItemGroup>
 
 	<PropertyGroup>
